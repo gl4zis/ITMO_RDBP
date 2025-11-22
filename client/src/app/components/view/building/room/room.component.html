@@ -1,0 +1,171 @@
+<nav-header/>
+<p-button class="center" [style]="{margin: '30px'}" (click)="openView()">New</p-button>
+
+<p-table #table
+  [value]="rooms"
+  styleClass="p-datatable-gridlines p-datatable-sm"
+  [style]="{width: '90%'}" class="center"
+  sortMode="multiple"
+  [paginator]="true" [rows]="10"
+  [globalFilterFields]="['id', 'dormitory.address', 'number', 'type', 'capacity', 'floor', 'cost', 'resident.name', 'resident.surname']"
+>
+  <ng-template pTemplate="caption">
+    <div class="flex">
+      <p-iconfield iconPosition="left" class="ml-auto">
+        <p-inputicon>
+          <i class="pi pi-search"></i>
+        </p-inputicon>
+        <input pInputText type="text" [(ngModel)]="searchValue" (input)="filter()" placeholder="Search keyword" />
+      </p-iconfield>
+    </div>
+  </ng-template>
+  <ng-template pTemplate="header">
+    <tr>
+      <th pSortableColumn="id">
+        Id <p-sortIcon field="id"/>
+      </th>
+      <th pSortableColumn="dormitory">
+        Dormitory <p-sortIcon field="dormitory"/>
+      </th>
+      <th pSortableColumn="number">
+        Number <p-sortIcon field="number"/>
+      </th>
+      <th pSortableColumn="type">
+        Type <p-sortIcon field="type"/>
+      </th>
+      <th pSortableColumn="capacity">
+        Capacity <p-sortIcon field="capacity"/>
+      </th>
+      <th pSortableColumn="floor">
+        Floor <p-sortIcon field="floor"/>
+      </th>
+      <th pSortableColumn="cost">
+        Cost <p-sortIcon field="cost"/>
+      </th>
+      <th>Residents</th>
+      <th></th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-room>
+    <tr [class]="{'yellow': room.capacity === room.residents.length}">
+      <td>{{ room.id }}</td>
+      <td><a [routerLink]="['/dormitory']" [queryParams]="{ id: room.dormitoryId }">{{ room.dormitory.address }}</a></td>
+      <td>{{ room.number }}</td>
+      <td>{{ room.type }}</td>
+      <td>{{ room.capacity }}</td>
+      <td>{{ room.floor }}</td>
+      <td>{{ room.cost }}</td>
+      <td><ul>
+        <li *ngFor="let resident of room.residents">
+          <a [routerLink]="['/residents']" [queryParams]="{ search: resident.login }">
+            {{ resident.name }} {{ resident.surname }}
+          </a>
+        </li>
+      </ul></td>
+      <td style="padding: 0">
+        <div style="min-width: 160px" class="buttons">
+          <p-button size="small" [outlined]="true"
+                    [style]="{height: '25px'}" severity="danger"
+                    (click)="deleteClick(room)"
+          >
+            Delete
+          </p-button>
+        </div>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<p-dialog header="Новая комната" [modal]="true" [(visible)]="viewOpened" [closable]="false" [style]="{width: '300px'}">
+  <div class="select-row">
+    <label for="dorm" style="display: block">Общежитие</label>
+    <p-select [options]="dormitoryOptions"
+              [(ngModel)]="editingForm.dormitoryId"
+              optionLabel="address" optionValue="id"
+              id="dorm"
+    />
+  </div>
+
+  <div class="input-row">
+    <div class="input" style="width: 100%">
+      <p-floatLabel>
+        <p-inputNumber [(ngModel)]="editingForm.number"
+                       mode="decimal"
+                       [useGrouping]="false"
+                       required
+                       [min]="1"
+                       id="number"
+                       #number="ngModel"
+        />
+        <label for="number">Номер</label>
+      </p-floatLabel>
+      <div class="error" *ngIf="number.invalid && (number.touched || number.dirty)">
+        Required positive
+      </div>
+    </div>
+  </div>
+
+  <div class="select-row">
+    <label for="type" style="display: block">Тип</label>
+    <p-select [options]="ROOM_TYPE_OPTIONS"
+              [(ngModel)]="editingForm.type"
+              optionLabel="name" optionValue="id"
+              id="type"
+    />
+  </div>
+
+  <div class="select-row">
+    <label for="capacity" style="display: block">Вместимость</label>
+    <p-select [options]="capacityOptions"
+              [(ngModel)]="editingForm.capacity"
+              id="capacity"
+              [style]="{width: '100%'}"
+    />
+  </div>
+
+  <div class="input-row">
+    <div class="input" style="width: 100%">
+      <p-floatLabel>
+        <p-inputNumber [(ngModel)]="editingForm.floor"
+                       mode="decimal"
+                       [useGrouping]="false"
+                       required
+                       [min]="1"
+                       id="floor"
+                       #floor="ngModel"
+                       [style]="{width: '100%'}"
+        />
+        <label for="floor">Этаж</label>
+      </p-floatLabel>
+      <div class="error" *ngIf="floor.invalid && (floor.touched || floor.dirty)">
+        Required positive
+      </div>
+    </div>
+  </div>
+
+  <div class="input-row">
+    <div class="input" style="width: 100%">
+      <p-floatLabel>
+        <p-inputNumber [(ngModel)]="editingForm.cost"
+                       mode="decimal"
+                       [useGrouping]="false"
+                       required
+                       [min]="500"
+                       [max]="5000"
+                       id="cost"
+                       #cost="ngModel"
+                       [style]="{width: '100%'}"
+        />
+        <label for="cost">Цена в месяц</label>
+      </p-floatLabel>
+      <div class="error" *ngIf="cost.invalid && (cost.touched || cost.dirty)">
+        Required [500; 5000]
+      </div>
+    </div>
+  </div>
+
+  <div class="form-buttons">
+    <p-button severity="danger" (click)="closeView()">Cancel</p-button>
+    <p-button (click)="saveView()">Confirm</p-button>
+  </div>
+</p-dialog>

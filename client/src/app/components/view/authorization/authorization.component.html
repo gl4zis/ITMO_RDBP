@@ -1,0 +1,149 @@
+<nav-header *ngIf="authService.isAuthorized()"/>
+<div class="form center">
+  <p-card>
+    <ng-template pTemplate="title">{{ getTitle() }}</ng-template>
+    <ng-container *ngIf="authService.isAuthorized()">
+      <div>&#64;{{ authService.getLogin() }}</div>
+      <div>Name: {{ this.profile?.name }}</div>
+      <div>Surname: {{ this.profile?.surname }}</div>
+      <div>Role: {{ this.profile?.role }}</div>
+      <ng-container *ngIf="this.profile && this.profile.role === Role.RESIDENT">
+        <div>University: {{ this.profile.university }}</div>
+        <div>Dormitory: {{ this.profile.dormitory }}</div>
+        <div>Room: {{ this.profile.roomNumber }}</div>
+      </ng-container>
+      <div class="form-buttons" style="width: 250px">
+        <p-button severity="danger" size="small" (click)="authService.logout()">Logout</p-button>
+        <p-button severity="help" size="small" (click)="openPasswordChanger()">Change password</p-button>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="!authService.isAuthorized()">
+      <div class="center" style="white-space: pre-line">
+        {{ isSignIn ? 'Doesn\'t' : 'Already '}} have an account?
+      </div>
+      <div class="center ref" (click)="changeForm()">{{ isSignIn ? 'Sign Up' : 'Sign In' }}</div>
+
+      <div class="input-row">
+        <div class="input" style="width: 100%">
+          <p-floatLabel>
+            <input pInputText
+                   id="login"
+                   required
+                   minlength="4"
+                   [(ngModel)]="form.login"
+                   #login="ngModel"/>
+            <label for="login">Username</label>
+          </p-floatLabel>
+          <div class="error" *ngIf="!isSignIn && login.invalid && (login.touched || login.dirty)">
+            Username should have at least 4 symbols
+          </div>
+        </div>
+      </div>
+      <div class="input-row">
+        <div class="input">
+          <p-floatLabel>
+            <p-password id="password"
+                        [(ngModel)]="form.password"
+                        [toggleMask]="true"
+                        [feedback]="false"
+                        required
+                        minlength="6"
+                        #password="ngModel"/>
+            <label for="password">Password</label>
+          </p-floatLabel>
+          <div class="error" *ngIf="!isSignIn && password.invalid && (password.touched || password.dirty)">
+            Password should have at least 6 symbols
+          </div>
+        </div>
+      </div>
+
+      <ng-container *ngIf="!isSignIn">
+        <div class="input-row">
+          <div class="input" style="width: 100%">
+            <p-floatLabel>
+              <input pInputText
+                     id="name"
+                     required
+                     minlength="2"
+                     [(ngModel)]="form.name"
+                     #name="ngModel"/>
+              <label for="name">Name</label>
+            </p-floatLabel>
+            <div class="error" *ngIf="!isSignIn && name.invalid && (name.touched || name.dirty)">
+              Name should have at least 2 symbols
+            </div>
+          </div>
+        </div>
+        <div class="input-row">
+          <div class="input" style="width: 100%">
+            <p-floatLabel>
+              <input pInputText
+                     id="surname"
+                     required
+                     minlength="2"
+                     [(ngModel)]="form.surname"
+                     #surname="ngModel"/>
+              <label for="surname">Surname</label>
+            </p-floatLabel>
+            <div class="error" *ngIf="!isSignIn && surname.invalid && (surname.touched || surname.dirty)">
+              Surname should have at least 2 symbols
+            </div>
+          </div>
+        </div>
+        <div class="center" style="margin-top: 30px;">
+          <p-button (click)="onSubmit()" [disabled]="!isSignIn && (login.invalid || password.invalid || name.invalid || surname.invalid)">Submit</p-button>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="isSignIn">
+        <div class="center" style="margin-top: 30px;">
+          <p-button (click)="onSubmit()" [disabled]="!isSignIn && (login.invalid || password.invalid)">Submit</p-button>
+        </div>
+      </ng-container>
+    </ng-container>
+  </p-card>
+</div>
+
+<p-dialog header="Change password" [modal]="true" [visible]="changePasswordDialog" [closable]="false">
+  <div class="input-row">
+    <div class="input">
+      <p-floatLabel>
+        <p-password id="old-password"
+                    [(ngModel)]="cpForm.oldPassword"
+                    [toggleMask]="true"
+                    [feedback]="false"
+                    required
+                    minlength="6"
+                    #oldPassword="ngModel"/>
+        <label for="old-password">Old password</label>
+      </p-floatLabel>
+      <div class="error" *ngIf="oldPassword.invalid && (oldPassword.touched || oldPassword.dirty)">
+        Password should have at least 6 symbols
+      </div>
+    </div>
+  </div>
+
+  <div class="input-row">
+    <div class="input">
+      <p-floatLabel>
+        <p-password id="new-password"
+                    [(ngModel)]="cpForm.newPassword"
+                    [toggleMask]="true"
+                    [feedback]="false"
+                    required
+                    minlength="6"
+                    #newPassword="ngModel"/>
+        <label for="new-password">New password</label>
+      </p-floatLabel>
+      <div class="error" *ngIf="newPassword.invalid && (newPassword.touched || newPassword.dirty)">
+        Password should have at least 6 symbols
+      </div>
+    </div>
+  </div>
+
+  <div class="form-buttons">
+    <p-button severity="danger" (click)="closePasswordChanger()">Cancel</p-button>
+    <p-button severity="help" (click)="changePassword()">Confirm</p-button>
+  </div>
+</p-dialog>

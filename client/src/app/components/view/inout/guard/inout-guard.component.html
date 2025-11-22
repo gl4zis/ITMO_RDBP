@@ -1,0 +1,20 @@
+<div class="form center">
+  <p-card>
+    <ng-template pTemplate="title">Register resident's IN/OUT</ng-template>
+    <div class="input-row">
+      <div class="input" style="width: 100%">
+        <p-floatLabel>
+          <input pInputText
+                 id="login"
+                 [(ngModel)]="login"/>
+          <label for="login">Username</label>
+        </p-floatLabel>
+      </div>
+    </div>
+
+    <div class="form-buttons">
+      <p-button [outlined]="true" (click)="exit()">Exit</p-button>
+      <p-button [outlined]="true" (click)="entry()">Entry</p-button>
+    </div>
+  </p-card>
+</div>

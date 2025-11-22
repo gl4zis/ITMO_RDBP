@@ -1,0 +1,246 @@
+<nav-header/>
+<p-button class="center" *ngIf="authService.getRole() !== Role.MANAGER && getBidTypeOptions().length"
+          [style]="{margin: '30px'}" (click)="newBid()"
+>New</p-button>
+
+<div class="page">
+  <ng-container *ngIf="authService.getRole() === Role.MANAGER">
+    <div class="scrollable" style="width: 100%">
+      <p-tabs value="0" (valueChange)="onTabChange($event)">
+        <p-tablist>
+          <p-tab value="0">In process bids</p-tab>
+          <p-tab value="1">Pending bids</p-tab>
+          <p-tab value="2">Archived bids</p-tab>
+        </p-tablist>
+        <p-tabpanels>
+          <p-tabpanel value="0">
+            <bid-card *ngFor="let bid of inProcessBids"
+                      [number]="bid.number"
+                      [sender]="bid.sender"
+                      [manager]="bid.manager"
+                      [type]="bid.type"
+                      [status]="bid.status"
+                      (open)="onBidClick($event)"
+            />
+          </p-tabpanel>
+          <p-tabpanel value="1">
+            <bid-card *ngFor="let bid of pendingBids"
+                      [number]="bid.number"
+                      [sender]="bid.sender"
+                      [manager]="bid.manager"
+                      [type]="bid.type"
+                      [status]="bid.status"
+                      (open)="onBidClick($event)"
+            />
+          </p-tabpanel>
+          <p-tabpanel value="2">
+            <bid-card *ngFor="let bid of archivedBids"
+                      [number]="bid.number"
+                      [sender]="bid.sender"
+                      [manager]="bid.manager"
+                      [type]="bid.type"
+                      [status]="bid.status"
+                      (open)="onBidClick($event)"
+            />
+          </p-tabpanel>
+        </p-tabpanels>
+      </p-tabs>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="authService.getRole() !== Role.MANAGER">
+    <div class="scrollable" style="width: 100%">
+      <bid-card *ngFor="let bid of selfBids"
+                [number]="bid.number"
+                [manager]="bid.manager"
+                [type]="bid.type"
+                [status]="bid.status"
+                (open)="onBidClick($event)"
+      />
+    </div>
+  </ng-container>
+</div>
+
+<ng-container *ngIf="viewBid">
+  <p-dialog [modal]="true" [(visible)]="viewOpened"
+            (onHide)="closeView()" [style]="{ width: '600px' }">
+
+    <ng-template pTemplate="header">
+      <ng-container *ngIf="isNewBid">
+        <div style="font-size: 16pt"><b>Новая заявка</b></div>
+      </ng-container>
+      <ng-container *ngIf="!isNewBid">
+        <div class="space-between" style="width: 80%">
+          <div style="font-size: 16pt"><b>Заявка #{{ viewBid.number }} на {{ BID_TYPE_MAP[viewBid.type] }}</b></div>
+          <div [style]="{ color: BID_STATUS_COLOR_MAP[viewBid.status] }"><b>{{ viewBid.status }}</b></div>
+        </div>
+      </ng-container>
+    </ng-template>
+
+    <div class="input-row" *ngIf="isNewBid">
+      <div class="input">
+        <p-select [style]="{width: '45%'}"
+          [options]="getBidTypeOptions()"
+          optionLabel="name" optionValue="id"
+          [(ngModel)]="viewBid.type"
+          (ngModelChange)="updateBidTypeForm()"
+        />
+      </div>
+    </div>
+
+    <div class="input-row" *ngIf="!isNewBid">
+      <div class="input" (mousedown)="redirectToSender()" style="margin-right: 20px">
+        <label for="sender">Заявитель</label>
+        <input pInputText id="sender"
+               [value]="viewBid.sender!.name + ' ' + viewBid.sender!.surname"
+               readonly/>
+      </div>
+      <div class="input">
+        <label for="manager">Обработчик</label>
+        <input pInputText id="manager"
+               [value]="viewBid.manager ? viewBid.manager?.name + ' ' + viewBid.manager?.surname : ''"
+               readonly/>
+      </div>
+    </div>
+
+    <div class="input-row">
+      <textarea pTextarea style="width: 100%; height: 150px; resize: none"
+                [readonly]="!isEditable()"
+                [(ngModel)]="viewBid.text"
+      ></textarea>
+    </div>
+
+    <div class="input-row" *ngIf="occupationData || departureData || roomChangeData">
+      <ng-container *ngIf="occupationData">
+        <div class="input" style="margin-right: 20px">
+          <label for="university">Университет</label>
+          <p-select
+            id="university" appendTo="body"
+            [style]="{width: '100%'}"
+            [options]="universityOptions"
+            optionValue="id" optionLabel="name"
+            [(ngModel)]="occupationData.university.id"
+            (ngModelChange)="loadDormOptions($event)"
+            [readonly]="!isEditable()"
+          />
+        </div>
+        <div class="input">
+          <label for="dormitory">Общежитие</label>
+          <p-select
+            id="dormitory" appendTo="body"
+            [style]="{width: '100%'}"
+            [options]="dormitoryOptions"
+            optionValue="id" optionLabel="address"
+            [(ngModel)]="occupationData.dormitory.id"
+            [readonly]="!isEditable()"
+          />
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="departureData">
+        <div class="input" style="margin-right: 20px">
+          <label for="from">С</label>
+          <p-calendar
+            [style]="{width: '100%'}"
+            [(ngModel)]="departureData.dayFrom"
+            [readonlyInput]="!isEditable()"
+            dateFormat="dd M yy"
+            id="from"
+            appendTo="body"
+          />
+        </div>
+        <div class="input">
+          <label for="to">По</label>
+          <p-calendar
+            [style]="{width: '100%'}"
+            [(ngModel)]="departureData.dayTo"
+            [readonlyInput]="!isEditable()"
+            dateFormat="dd M yy"
+            id="to"
+            appendTo="body"
+          />
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="roomChangeData">
+        <div class="input" style="margin-right: 20px">
+          <label for="roomNumber">Комната</label>
+          <p-select id="roomNumber"
+                    [style]="{width: '100%'}"
+                    [(ngModel)]="roomChangeData.roomTo.id"
+                    [readonly]="!isEditable()"
+                    [options]="roomOptions"
+                    optionValue="id" optionLabel="label"
+          />
+        </div>
+        <div class="input">
+          <label for="preferType">Предпочтительный тип</label>
+          <p-select
+            id="preferType" appendTo="body"
+            [style]="{width: '100%'}"
+            [options]="ROOM_TYPE_OPTIONS"
+            optionValue="id" optionLabel="name"
+            [(ngModel)]="roomChangeData.roomPreferType"
+            [readonly]="!isEditable()"
+          />
+        </div>
+      </ng-container>
+    </div>
+
+    <div class="flex input-row" style="flex-direction: column">
+      <h6 class="center">Приложения</h6>
+      <div class="center" *ngIf="isEditable()">
+        <p-fileupload
+          name="file"
+          mode="basic"
+          chooseIcon="pi pi-upload"
+          chooseLabel="Add file"
+          [url]="uploadLink()"
+          [auto]="true"
+          [multiple]="false"
+          (onUpload)="onFileUpload($event)"
+        />
+      </div>
+      <ul style="margin-top: 20px">
+        <li *ngFor="let attachment of viewBid.attachments">
+          <a [href]="fileRepository.createDownloadLink(attachment.downloadKey)" download>{{ attachment.filename }}</a>
+          <p-button [style]="{'margin-left': '20px'}"
+                    severity="danger" [outlined]="true"
+                    size="small" (click)="removeFile(attachment.downloadKey)"
+                    *ngIf="isEditable()"
+          >Remove</p-button>
+        </li>
+      </ul>
+    </div>
+
+    <div class="input-row" *ngIf="viewBid.comment">
+      <h6 class="center">Комментарий от обработчика заявки</h6>
+      <textarea pTextarea style="width: 100%; height: 100px; resize: none"
+                readonly
+                [(ngModel)]="viewBid.comment"
+      ></textarea>
+    </div>
+
+    <div class="form-buttons" *ngIf="authService.getRole() === Role.MANAGER">
+      <p-button severity="danger" (click)="denyBid()">Deny</p-button>
+      <p-button (click)="acceptBid()">Accept</p-button>
+      <p-button severity="secondary" (click)="pendBid()">Pend revisions</p-button>
+    </div>
+    <div class="form-buttons" *ngIf="isEditable()">
+      <p-button severity="danger" (click)="closeView()">Cancel</p-button>
+      <p-button (click)="saveBid()">Save</p-button>
+    </div>
+  </p-dialog>
+</ng-container>
+
+<p-dialog header="Оставьте сообщение заявителю" [modal]="true" [visible]="commentDialogOpened" [closable]="false">
+
+  <div class="input-row">
+    <textarea pTextarea style="width: 500px; height: 150px; resize: none" [(ngModel)]="comment"></textarea>
+  </div>
+
+  <div class="form-buttons">
+    <p-button severity="danger" (click)="cancelComment()">Cancel</p-button>
+    <p-button (click)="saveComment()">OK</p-button>
+  </div>
+</p-dialog>

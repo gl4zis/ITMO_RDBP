@@ -1,0 +1,25 @@
+<nav-header/>
+
+<div class="page">
+  <div *ngIf="!evictions.length" class="center">
+    <h4>No auto evictions detected</h4>
+  </div>
+  <div class="scrollable" style="width: 100%" *ngIf="evictions.length">
+    <p-card *ngFor="let eviction of evictions" [style]="{width: '100%', margin: '10px'}">
+      <div class="special-card">
+        <div>
+          <a *ngIf="eviction.resident.role === Role.RESIDENT"
+             [routerLink]="['/residents']"
+             [queryParams]="{ search: eviction.resident.login }"
+          >
+            {{ eviction.resident.name }} {{ eviction.resident.surname }}
+          </a>
+        </div>
+        <div><b>{{ EVICTION_REASON_LOCALIZATION_MAP[eviction.reason] }}</b></div>
+        <div>
+          <p-button severity="danger" (click)="evict(eviction)">Evict</p-button>
+        </div>
+      </div>
+    </p-card>
+  </div>
+</div>

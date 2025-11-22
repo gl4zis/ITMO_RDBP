@@ -1,0 +1,101 @@
+<nav-header/>
+
+<ng-container *ngIf="authService.getRole() === Role.RESIDENT">
+  <ng-container *ngIf="paymentInfo">
+    <ng-container *ngIf="paymentInfo.debt <= 0">
+      <div class="center" style="margin: 20px">
+        <h4>You are great! You have no debt</h4>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="paymentInfo.debt > 0">
+      <div class="form center" style="margin-bottom: 50px">
+        <p-card>
+          <ng-template pTemplate="title">We don't save your card data</ng-template>
+          <div class="input-row">
+            <div class="input" style="width: 100%">
+              <p-floatLabel>
+                <p-inputmask mask="9999    9999    9999    9999" id="card-number"/>
+                <label for="card-number">Card number</label>
+              </p-floatLabel>
+            </div>
+          </div>
+
+          <div class="input-row">
+            <div class="input" style="width: 40%">
+              <p-floatLabel>
+                <p-inputmask mask="99/99" id="card-date"/>
+                <label for="card-date">Date</label>
+              </p-floatLabel>
+            </div>
+            <div class="input" style="width: 40%">
+              <p-floatLabel>
+                <p-password maxLength="3" id="cvv" [feedback]="false"/>
+                <label for="cvv">CVV/CVC</label>
+              </p-floatLabel>
+            </div>
+          </div>
+
+          <div class="form-buttons">
+            <p-button (click)="pay()">Pay {{ paymentInfo.debt }} rubles</p-button>
+          </div>
+        </p-card>
+      </div>
+    </ng-container>
+  </ng-container>
+
+  <div class="center" style="margin: 20px">
+    <h3>History of your payment events</h3>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="authService.getRole() === Role.MANAGER">
+  <div class="double-form center" style="margin-bottom: 50px">
+    <p-card [style]="{'margin-right': '50px'}">
+      <ng-template pTemplate="title">Type login to get history</ng-template>
+      <div class="input-row">
+        <div class="input" style="width: 100%">
+          <p-floatLabel>
+            <input pInputText
+                   id="resident"
+                   [(ngModel)]="searchResident"/>
+            <label for="resident">Resident</label>
+          </p-floatLabel>
+        </div>
+      </div>
+
+      <div class="form-buttons">
+        <p-button (click)="findResidentHistory()">Find</p-button>
+      </div>
+    </p-card>
+
+    <p-card *ngIf="paymentInfo">
+      <ng-template pTemplate="title">Resident debt</ng-template>
+      <div>Debt: {{ paymentInfo.debt }} rubles</div>
+      <div>Cost of room: {{ paymentInfo.roomCost }} rubles</div>
+      <div>Last payment at: {{ paymentInfo.lastPaymentTime }} MSK</div>
+    </p-card>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="paymentInfo">
+  <p-table [value]="paymentInfo.history"
+           styleClass="p-datatable-gridlines p-datatable-sm"
+           [style]="{width: '70%'}" class="center"
+           [paginator]="true" [rows]="10"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Date</th>
+        <th>Room</th>
+        <th>Sum</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-event>
+      <tr>
+        <td>{{ Utils.formatDateTime(event.timestamp) }}</td>
+        <td>{{ event.dormitory }}, room #{{ event.roomNumber }}</td>
+        <td>{{ event.sum }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</ng-container>

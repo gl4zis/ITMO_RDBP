@@ -1,0 +1,6 @@
+export enum Role {
+  RESIDENT = 'RESIDENT',
+  NON_RESIDENT = 'NON_RESIDENT',
+  MANAGER = 'MANAGER',
+  GUARD = 'GUARD',
+}

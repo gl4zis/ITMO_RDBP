@@ -1,0 +1,23 @@
+server:
+  port: 8183
+
+jwt:
+  access:
+    key: aa7sr4lm21fr5fq0y0qyhjv8221r8ro3ee1iwj6sj4i1qppjin
+
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASS}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+file:
+  storage:
+    dir: /Users/makeev/dorm-storage
+#/home/studs/s367370/dorm-storage

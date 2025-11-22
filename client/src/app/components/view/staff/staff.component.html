@@ -1,0 +1,120 @@
+<nav-header/>
+<p-button class="center" [style]="{margin: '30px'}" (click)="showDialog()">Register new</p-button>
+
+<p-table [value]="staff"
+         styleClass="p-datatable-gridlines p-datatable-sm"
+         [style]="{width: '50%'}" class="center"
+         [paginator]="true" [rows]="10"
+>
+  <ng-template pTemplate="header">
+    <tr>
+      <th>Login</th>
+      <th>Name</th>
+      <th>Surname</th>
+      <th>Role</th>
+      <th></th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-staff>
+    <tr>
+      <td>&#64;{{ staff.login }}</td>
+      <td>{{ staff.name }}</td>
+      <td>{{ staff.surname }}</td>
+      <td>{{ staff.role }}</td>
+      <td>
+        <span *ngIf="authService.getLogin() == staff.login" style="color: green">MYSELF</span>
+        <p-button
+          *ngIf="authService.getLogin() != staff.login && staff.role === Role.GUARD"
+          severity="danger"
+          [outlined]="true"
+          (click)="fire(staff)">
+          Fire
+        </p-button>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<p-dialog header="Register new staff member" [modal]="true" [visible]="registerDialog" [closable]="false">
+  <div class="input-row">
+    <div class="input">
+      <p-floatLabel>
+        <input pInputText
+               id="login"
+               required
+               minlength="4"
+               [(ngModel)]="form.login"
+               #login="ngModel"/>
+        <label for="login">Username</label>
+      </p-floatLabel>
+      <div class="error" *ngIf="login.invalid && (login.touched || login.dirty)">
+        Username should have at least 4 symbols
+      </div>
+    </div>
+  </div>
+  <div class="input-row">
+    <div class="input">
+      <p-floatLabel>
+        <p-password id="password"
+                    [(ngModel)]="form.password"
+                    [toggleMask]="true"
+                    [feedback]="false"
+                    required
+                    minlength="6"
+                    #password="ngModel"/>
+        <label for="password">Password</label>
+      </p-floatLabel>
+      <div class="error" *ngIf="password.invalid && (password.touched || password.dirty)">
+        Password should have at least 6 symbols
+      </div>
+    </div>
+  </div>
+
+  <div class="input-row">
+    <div class="input">
+      <p-floatLabel>
+        <input pInputText
+               id="name"
+               required
+               minlength="2"
+               [(ngModel)]="form.name"
+               #name="ngModel"/>
+        <label for="name">Name</label>
+      </p-floatLabel>
+      <div class="error" *ngIf="name.invalid && (name.touched || name.dirty)">
+        Name should have at least 2 symbols
+      </div>
+    </div>
+  </div>
+  <div class="input-row">
+    <div class="input">
+      <p-floatLabel>
+        <input pInputText
+               id="surname"
+               required
+               minlength="2"
+               [(ngModel)]="form.surname"
+               #surname="ngModel"/>
+        <label for="surname">Surname</label>
+      </p-floatLabel>
+      <div class="error" *ngIf="surname.invalid && (surname.touched || surname.dirty)">
+        Surname should have at least 2 symbols
+      </div>
+    </div>
+  </div>
+
+  <div class="input-row">
+    <p-select [options]="roleOptions"
+              [(ngModel)]="form.role"
+              optionLabel="label"
+              optionValue="value"
+              size="small"
+              class="center"
+    />
+  </div>
+
+  <div class="form-buttons">
+    <p-button severity="danger" size="small" [outlined]="true" (click)="closeDialog()">Cancel</p-button>
+    <p-button size="small" (click)="register()" [disabled]="login.invalid || password.invalid || name.invalid || surname.invalid">Submit</p-button>
+  </div>
+</p-dialog>

@@ -1,0 +1,69 @@
+# Общие файлы IDE
+*.iml
+.idea/
+*.class
+*.log
+*.swp
+*.swo
+*.DS_Store
+.vscode/
+out/
+target/
+build/
+
+# Maven
+.mvn/
+**/mvnw
+**/mvnw.cmd
+**/.mvn
+
+# Gradle
+.gradle/
+build/
+**/gradlew
+**/gradlew.bat
+**/gradle-wrapper.jar
+gradle/wrapper/gradle-wrapper.properties
+
+# IntelliJ IDEA
+.idea/
+*.iws
+*.ipr
+*.iml
+
+# NetBeans
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# Eclipse
+.project
+.classpath
+.settings/
+bin/
+
+# VS Code
+.vscode/
+
+# Лог-файлы
+*.log
+
+# Генерируемые файлы
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.tar.bz2
+
+# Базы данных H2
+*.h2.db
+*.mv.db
+
+# Тесты и покрытие
+.test/
+.jacoco/
+coverage/

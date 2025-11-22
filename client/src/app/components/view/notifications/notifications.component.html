@@ -1,0 +1,13 @@
+<nav-header/>
+
+<div class="page">
+  <h2 class="center" *ngIf="!notifications.length">No unread notifications</h2>
+  <p-button class="center" *ngIf="notifications.length" (click)="markAllAsRead()">Mark all as read</p-button>
+  <div class="scrollable">
+    <p-card class="notification" *ngFor="let notification of notifications">
+      <h4>Bid <a [routerLink]="['/bids']" [queryParams]="{ id: notification.bidId }">#{{ notification.bidId }}</a></h4>
+      <div style="margin-bottom: 10px">{{ notification.text }}</div>
+      <p-button (click)="markAsRead(notification.id)">Mark as read</p-button>
+    </p-card>
+  </div>
+</div>

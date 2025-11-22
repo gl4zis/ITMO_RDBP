@@ -1,0 +1,85 @@
+<nav-header/>
+<p-button class="center" [style]="{margin: '30px'}" (click)="openView()">New</p-button>
+
+<p-table [value]="dormitories"
+         styleClass="p-datatable-gridlines p-datatable-sm"
+         [style]="{width: '70%'}" class="center"
+         [paginator]="true" [rows]="10"
+>
+  <ng-template pTemplate="header">
+    <tr>
+      <th>Id</th>
+      <th>Address</th>
+      <th>Universities</th>
+      <th>Residents count</th>
+      <th style="width: 10%"></th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-dormitory>
+    <tr>
+      <td>{{ dormitory.id }}</td>
+      <td>{{ dormitory.address }}</td>
+      <td><ul>
+        <li *ngFor="let university of dormitory.universities">
+          <a [routerLink]="['/university']" [queryParams]="{ id: university.id }">{{ university.name }}</a>
+        </li>
+      </ul></td>
+      <td>{{ dormitory.residentNumber }}</td>
+      <td style="padding: 0">
+        <div style="min-width: 160px" class="buttons">
+          <p-button size="small" [outlined]="true"
+                    [style]="{height: '25px'}"
+                    (click)="editClick(dormitory.id)"
+          >
+            Edit
+          </p-button>
+          <p-button size="small" [outlined]="true"
+                    [style]="{height: '25px'}" severity="danger"
+                    (click)="deleteClick(dormitory)"
+          >
+            Delete
+          </p-button>
+        </div>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<p-dialog [header]="editingId ? 'Общежитие #' + editingId : 'Новое общежитие'"
+          [modal]="true" [(visible)]="viewOpened" [closable]="false">
+
+  <div class="input-row">
+    <div class="input" style="width: 100%">
+      <p-floatLabel>
+        <input pInputText
+               id="address"
+               required
+               minlength="2"
+               [(ngModel)]="editingForm.address"
+               #address="ngModel"/>
+        <label for="address">Адрес</label>
+      </p-floatLabel>
+      <div class="error" *ngIf="address.invalid && (address.touched || address.dirty)">
+        Username should have at least 2 symbols
+      </div>
+    </div>
+  </div>
+
+  <div class="input-row">
+    <div class="input" style="width: 100%">
+      <label for="universities">Университеты</label>
+      <br>
+      <p-multiSelect [options]="universityOptions"
+                     [(ngModel)]="editingForm.universityIds"
+                     optionLabel="name" optionValue="id"
+                     appendTo="body"
+                     id="universities"
+      />
+    </div>
+  </div>
+
+  <div class="form-buttons">
+    <p-button severity="danger" (click)="closeView()">Cancel</p-button>
+    <p-button (click)="saveView()">Confirm</p-button>
+  </div>
+</p-dialog>

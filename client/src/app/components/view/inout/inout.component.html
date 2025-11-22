@@ -1,0 +1,51 @@
+<nav-header/>
+<inout-guard-page *ngIf="authService.getRole() === Role.GUARD"/>
+
+<ng-container *ngIf="authService.getRole() !== Role.GUARD">
+  <ng-container *ngIf="authService.getRole() === Role.MANAGER">
+    <div class="form center" style="margin-bottom: 50px">
+      <p-card>
+        <ng-template pTemplate="title">Type login to get history</ng-template>
+        <div class="input-row">
+          <div class="input" style="width: 100%">
+            <p-floatLabel>
+              <input pInputText
+                     id="resident"
+                     [(ngModel)]="searchResident"/>
+              <label for="resident">Resident</label>
+            </p-floatLabel>
+          </div>
+        </div>
+
+        <div class="form-buttons">
+          <p-button (click)="findResidentHistory()">Find</p-button>
+        </div>
+      </p-card>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="authService.getRole() === Role.RESIDENT">
+    <div class="center" style="margin: 20px">
+      <h2>History of your in/out events</h2>
+    </div>
+  </ng-container>
+
+  <p-table [value]="history"
+           styleClass="p-datatable-gridlines p-datatable-sm"
+           [style]="{width: '50%'}" class="center"
+           [paginator]="true" [rows]="10"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Date</th>
+        <th>Direction</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-event>
+      <tr>
+        <td>{{ event.timestamp }}</td>
+        <td>{{ event.type }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</ng-container>
