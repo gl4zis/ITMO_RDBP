@@ -11,6 +11,9 @@ import ru.itmo.is.security.PasswordManager;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface UserMapper {
     @Mapping(target = "password", qualifiedByName = "hash")
+    @Mapping(target = "sendBids", ignore = true)
+    @Mapping(target = "managedBids", ignore = true)
+    @Mapping(target = "events", ignore = true)
     User toUser(RegisterRequest req);
 
     @Named("hash")

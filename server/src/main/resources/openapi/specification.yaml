@@ -1,0 +1,84 @@
+openapi: 3.0.3
+
+info:
+  title: Dormitory system
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8183
+
+tags:
+  - name: File
+    description: 'Methods for saving and getting files'
+
+paths:
+  /file/upload:
+    post:
+      summary: 'Upload file on server'
+      operationId: uploadFile
+      tags:
+        - File
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+            encoding:
+              file:
+                contentType: application/octet-stream
+      responses:
+        200:
+          description: File uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OneFieldString"
+        400:
+          description: Parameter file not found in request
+        500:
+          description: Error while saving file
+
+  /file/download/{key}:
+    get:
+      summary: Download file by key
+      operationId: downloadFile
+      tags:
+        - File
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: File found and returned successfully
+          headers:
+            Content-Disposition:
+              description: Attachment filename
+              schema:
+                type: string
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        404:
+          description: File not found
+
+components:
+  schemas:
+    OneFieldString:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          type: string

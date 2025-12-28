@@ -1,6 +1,7 @@
 plugins {
-    id("org.springframework.boot") version "3.4.1"
+    id 'org.springframework.boot' version '3.4.1'
     id 'java'
+    id 'org.openapi.generator' version '7.4.0'
 }
 
 group = 'ru.itmo.is'
@@ -15,6 +16,15 @@ java {
 repositories {
     mavenCentral()
 }
+
+sourceSets {
+    main {
+        java {
+            srcDirs += "$buildDir/generated/src/main/java"
+        }
+    }
+}
+
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa:3.4.1'
@@ -35,7 +45,27 @@ dependencies {
 
     implementation 'org.apache.commons:commons-lang3:3.17.0'
 
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.3'
+    implementation 'org.openapitools:jackson-databind-nullable:0.2.8'
+
     configurations.all {
         exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
     }
+}
+
+openApiGenerate {
+    generatorName = "spring"
+    inputSpec = "$projectDir/src/main/resources/openapi/specification.yaml"
+    outputDir = "$buildDir/generated"
+    apiPackage = "ru.itmo.is.api"
+    modelPackage = "ru.itmo.is.dto"
+    configOptions = [
+            interfaceOnly: "true",
+            useSpringBoot3: "true",
+            skipDefaultInterface: "true"
+    ]
+}
+
+tasks.named('compileJava') {
+    dependsOn tasks.named('openApiGenerate')
 }

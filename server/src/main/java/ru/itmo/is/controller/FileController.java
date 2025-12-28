@@ -1,34 +1,36 @@
 package ru.itmo.is.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import ru.itmo.is.dto.OneFieldDto;
+import ru.itmo.is.api.FileApi;
+import ru.itmo.is.dto.OneFieldString;
 import ru.itmo.is.dto.response.FileResponse;
 import ru.itmo.is.service.FileService;
 
+@Log4j2
 @RestController
-@RequestMapping("/file")
 @RequiredArgsConstructor
-public class FileController {
+public class FileController implements FileApi {
     private final FileService fileService;
 
-    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public OneFieldDto<String> upload(@RequestParam("file") MultipartFile file) {
-        return new OneFieldDto<>(fileService.upload(file));
-    }
-
-    @GetMapping("/download/{key}")
-    public ResponseEntity<Resource> download(@PathVariable("key") String key) {
+    @Override
+    public ResponseEntity<Resource> downloadFile(String key) {
         FileResponse file = fileService.get(key);
 
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.name() + "\"")
                 .body(file.data());
+    }
+
+    @Override
+    public ResponseEntity<OneFieldString> uploadFile(MultipartFile file) {
+        return ResponseEntity.ok(new OneFieldString(fileService.upload(file)));
     }
 }

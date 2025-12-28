@@ -17,7 +17,9 @@ spring:
       ddl-auto: validate
     show-sql: false
 
+
 file:
   storage:
-    dir: /Users/makeev/dorm-storage
+    dir: /app/uploads
+#/Users/makeev/dorm-storage
 #/home/studs/s367370/dorm-storage
