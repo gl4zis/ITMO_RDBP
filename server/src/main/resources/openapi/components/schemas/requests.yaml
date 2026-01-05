@@ -45,3 +45,16 @@ PasswordChangeRequest:
       type: string
     newPassword:
       type: string
+
+DormitoryRequest:
+  type: object
+  required:
+    - address
+    - universityIds
+  properties:
+    address:
+      type: string
+    universityIds:
+      type: array
+      items:
+        type: integer

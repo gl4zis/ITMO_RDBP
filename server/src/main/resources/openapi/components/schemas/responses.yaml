@@ -26,3 +26,22 @@ ProfileResponse:
           type: string
         roomNumber:
           type: integer
+
+DormitoryResponse:
+  type: object
+  required:
+    - id
+    - address
+    - universityIds
+    - residentNumber
+  properties:
+    id:
+      type: integer
+    address:
+      type: string
+    universityIds:
+      type: array
+      items:
+        type: integer
+    residentNumber:
+      type: integer

@@ -12,6 +12,8 @@ tags:
     description: 'Methods for users authentication'
   - name: Bid
     description: 'Methods for working with user bids'
+  - name: Dormitory
+    description: 'Methods for working with dormitory entities'
   - name: File
     description: 'Methods for saving and getting files'
 
@@ -61,6 +63,11 @@ paths:
     $ref: './paths/bid.yaml#/{id}~1pend'
   /bid/{id}/deny:
     $ref: './paths/bid.yaml#/{id}~1deny'
+
+  /dormitory:
+    $ref: './paths/dormitory.yaml#/root'
+  /dormitory/{id}:
+    $ref: './paths/dormitory.yaml#/{id}'
 
   /file/upload:
     $ref: './paths/file.yaml#/upload'

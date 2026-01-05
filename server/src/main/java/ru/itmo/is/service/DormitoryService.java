@@ -2,13 +2,14 @@ package ru.itmo.is.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.itmo.is.dto.request.DormitoryRequest;
-import ru.itmo.is.dto.response.DormitoryResponse;
+import ru.itmo.is.dto.DormitoryRequest;
+import ru.itmo.is.dto.DormitoryResponse;
 import ru.itmo.is.entity.dorm.Dormitory;
 import ru.itmo.is.entity.dorm.Room;
 import ru.itmo.is.entity.dorm.University;
 import ru.itmo.is.exception.BadRequestException;
 import ru.itmo.is.exception.NotFoundException;
+import ru.itmo.is.mapper.DormitoryMapper;
 import ru.itmo.is.repository.DormitoryRepository;
 import ru.itmo.is.repository.UniversityRepository;
 
@@ -22,14 +23,18 @@ import java.util.stream.Collectors;
 public class DormitoryService {
     private final DormitoryRepository dormitoryRepository;
     private final UniversityRepository universityRepository;
+    private final DormitoryMapper dormitoryMapper;
 
     public List<DormitoryResponse> getAllDormitories() {
-        return dormitoryRepository.findAllByOrderById().stream().map(DormitoryResponse::new).toList();
+        return dormitoryRepository.findAllByOrderById()
+                .stream()
+                .map(dormitoryMapper::toDto)
+                .toList();
     }
 
     public DormitoryResponse getDormitory(int id) {
         return dormitoryRepository.findById(id)
-                .map(DormitoryResponse::new)
+                .map(dormitoryMapper::toDto)
                 .orElseThrow(() -> new NotFoundException("Dormitory not found"));
     }
 
