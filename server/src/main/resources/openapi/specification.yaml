@@ -20,6 +20,8 @@ tags:
     description: 'Methods for control residents entries and exits'
   - name: Notification
     description: 'Methods for reads notifications for current users'
+  - name: Payment
+    description: 'Methods for pay by rooms for residents and get info about payments'
 
 paths:
   /auth/register:
@@ -93,3 +95,10 @@ paths:
     $ref: './paths/notification.yaml#/mark-as-read'
   /notification/mark-all-as-read:
     $ref: './paths/notification.yaml#/mark-all-as-read'
+
+  /payment/info:
+    $ref: './paths/payment.yaml#/info'
+  /payment/info/self:
+    $ref: './paths/payment.yaml#/info~1self'
+  /payment/pay:
+    $ref: './paths/payment.yaml#/pay'

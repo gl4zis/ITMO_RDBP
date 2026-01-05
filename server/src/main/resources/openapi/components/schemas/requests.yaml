@@ -58,3 +58,11 @@ DormitoryRequest:
       type: array
       items:
         type: integer
+
+PaymentRequest:
+  type: object
+  required:
+    - sum
+  properties:
+    sum:
+      type: integer

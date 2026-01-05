@@ -61,3 +61,41 @@ NotificationResponse:
       format: int64
     text:
       type: string
+
+PaymentHistoryRecord:
+  type: object
+  required:
+    - timestamp
+    - dormitory
+    - roomNumber
+    - sum
+  properties:
+    timestamp:
+      type: string
+      format: date-time
+    dormitory:
+      type: string
+    roomNumber:
+      type: integer
+    sum:
+      type: integer
+
+PaymentResponse:
+  type: object
+  required:
+    - debt
+    - roomCost
+    - lastPaymentTime
+    - history
+  properties:
+    debt:
+      type: integer
+    roomCost:
+      type: integer
+    lastPaymentTime:
+      type: string
+      format: date-time
+    history:
+      type: array
+      items:
+        $ref: '#/PaymentHistoryRecord'
