@@ -2,11 +2,8 @@ package ru.itmo.is.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.itmo.is.dto.OneFieldDto;
-import ru.itmo.is.dto.request.LoginRequest;
-import ru.itmo.is.dto.request.PasswordChangeRequest;
-import ru.itmo.is.dto.request.RegisterRequest;
-import ru.itmo.is.dto.response.ProfileResponse;
+import ru.itmo.is.dto.*;
+import ru.itmo.is.dto.RegisterRequest;
 import ru.itmo.is.entity.user.Resident;
 import ru.itmo.is.entity.user.User;
 import ru.itmo.is.exception.BadRequestException;
@@ -27,7 +24,7 @@ public class AuthService {
     private final UserMapper mapper;
     private final UserService userService;
 
-    public OneFieldDto<String> register(RegisterRequest req) {
+    public OneFieldString register(RegisterRequest req) {
         return switch (req.getRole()) {
             case MANAGER -> registerManager(mapper.toUser(req));
             case NON_RESIDENT -> saveAndGetToken(mapper.toUser(req));
@@ -35,12 +32,12 @@ public class AuthService {
         };
     }
 
-    public OneFieldDto<String> login(LoginRequest req) {
+    public OneFieldString login(LoginRequest req) {
         Optional<User> userO = userRepository.findById(req.getLogin());
         if (userO.isEmpty() || !PasswordManager.matches(req.getPassword(), userO.get().getPassword())) {
             throw new UnauthorizedException("Invalid credentials");
         }
-        return new OneFieldDto<>(jwtManager.createToken(userO.get()));
+        return new OneFieldString(jwtManager.createToken(userO.get()));
     }
 
     public void registerOther(RegisterRequest req) {
@@ -60,19 +57,19 @@ public class AuthService {
         return mapToProfile(userService.getCurrentUserOrThrow());
     }
 
-    private OneFieldDto<String> registerManager(User user) {
+    private OneFieldString registerManager(User user) {
         if (isManagerExists()) {
             throw new UnauthorizedException("Invalid role");
         }
         return saveAndGetToken(user);
     }
 
-    private OneFieldDto<String> saveAndGetToken(User user) {
+    private OneFieldString saveAndGetToken(User user) {
         if (userRepository.existsByLogin(user.getLogin())) {
             throw new ConflictException("User already exists");
         }
         userRepository.save(user);
-        return new OneFieldDto<>(jwtManager.createToken(user));
+        return new OneFieldString(jwtManager.createToken(user));
     }
 
     private boolean isManagerExists() {
@@ -87,21 +84,30 @@ public class AuthService {
         return new ProfileResponse(
                 user.getName(),
                 user.getSurname(),
-                user.getRole(),
-                null,
-                null,
-                null
+                mapProfileRole(user.getRole())
         );
     }
 
     private ProfileResponse mapResidentToProfile(Resident resident) {
-        return new ProfileResponse(
+        var profile = new ProfileResponse(
                 resident.getName(),
                 resident.getSurname(),
-                resident.getRole(),
-                resident.getUniversity().getName(),
-                resident.getRoom().getDormitory().getAddress(),
-                resident.getRoom().getNumber()
+                mapProfileRole(resident.getRole())
         );
+
+        profile.setUniversity(resident.getUniversity().getName());
+        profile.setDormitory(resident.getRoom().getDormitory().getAddress());
+        profile.setRoomNumber(resident.getRoom().getNumber());
+
+        return profile;
+    }
+
+    private UserRole mapProfileRole(User.Role role) {
+        return switch (role) {
+            case MANAGER -> UserRole.MANAGER;
+            case NON_RESIDENT -> UserRole.NON_RESIDENT;
+            case GUARD -> UserRole.GUARD;
+            case RESIDENT -> UserRole.RESIDENT;
+        };
     }
 }

@@ -11,6 +11,7 @@ import ru.itmo.is.entity.user.User;
 import ru.itmo.is.exception.BadRequestException;
 import ru.itmo.is.exception.ForbiddenException;
 import ru.itmo.is.exception.NotFoundException;
+import ru.itmo.is.exception.UnauthorizedException;
 import ru.itmo.is.repository.EventRepository;
 import ru.itmo.is.repository.ResidentRepository;
 import ru.itmo.is.repository.UserRepository;
@@ -44,9 +45,9 @@ public class UserService {
     public User getCurrentUserOrThrow() {
         String login = securityContext.getUsername();
         if (login == null) {
-            throw new ForbiddenException("You are not logged in");
+            throw new UnauthorizedException("You are not logged in");
         }
-        return userRepository.findById(login).orElseThrow(() -> new ForbiddenException("You are not logged in"));
+        return userRepository.findById(login).orElseThrow(() -> new UnauthorizedException("You are not logged in"));
     }
 
     public List<UserResponse> getStaff() {
