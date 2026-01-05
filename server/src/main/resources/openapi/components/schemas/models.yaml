@@ -19,3 +19,18 @@ UserRole:
     - RESIDENT
     - MANAGER
     - GUARD
+
+GuardHistory:
+  type: object
+  required:
+    - timestamp
+    - type
+  properties:
+    timestamp:
+      type: string
+      format: date-time
+    type:
+      type: string
+      enum:
+        - IN
+        - OUT

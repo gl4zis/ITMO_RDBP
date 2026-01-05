@@ -16,6 +16,8 @@ tags:
     description: 'Methods for working with dormitory entities'
   - name: File
     description: 'Methods for saving and getting files'
+  - name: Guard
+    description: 'Methods for control residents entries and exits'
 
 paths:
   /auth/register:
@@ -73,3 +75,15 @@ paths:
     $ref: './paths/file.yaml#/upload'
   /file/download/{key}:
     $ref: './paths/file.yaml#/download~1{key}'
+
+  /guard/entry:
+    $ref: './paths/guard.yaml#/entry'
+
+  /guard/exit:
+    $ref: './paths/guard.yaml#/exit'
+
+  /guard/history:
+    $ref: './paths/guard.yaml#/history'
+
+  /guard/history/self:
+    $ref: './paths/guard.yaml#/history~1self'

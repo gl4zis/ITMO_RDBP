@@ -58,7 +58,8 @@ openApiGenerate {
     configOptions = [
             interfaceOnly: "true",
             useSpringBoot3: "true",
-            skipDefaultInterface: "true"
+            skipDefaultInterface: "true",
+            dateLibrary: "java8-localdatetime"
     ]
 }
 
