@@ -18,6 +18,8 @@ tags:
     description: 'Methods for saving and getting files'
   - name: Guard
     description: 'Methods for control residents entries and exits'
+  - name: Notification
+    description: 'Methods for reads notifications for current users'
 
 paths:
   /auth/register:
@@ -78,12 +80,16 @@ paths:
 
   /guard/entry:
     $ref: './paths/guard.yaml#/entry'
-
   /guard/exit:
     $ref: './paths/guard.yaml#/exit'
-
   /guard/history:
     $ref: './paths/guard.yaml#/history'
-
   /guard/history/self:
     $ref: './paths/guard.yaml#/history~1self'
+
+  /notification/unread:
+    $ref: './paths/notification.yaml#/unread'
+  /notification/mark-as-read:
+    $ref: './paths/notification.yaml#/mark-as-read'
+  /notification/mark-all-as-read:
+    $ref: './paths/notification.yaml#/mark-all-as-read'

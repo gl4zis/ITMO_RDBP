@@ -2,7 +2,7 @@ package ru.itmo.is.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.itmo.is.dto.response.NotificationResponse;
+import ru.itmo.is.dto.NotificationResponse;
 import ru.itmo.is.entity.notification.Notification;
 import ru.itmo.is.entity.user.User;
 import ru.itmo.is.exception.ForbiddenException;
@@ -22,7 +22,9 @@ public class NotificationService {
         User receiver = userService.getCurrentUserOrThrow();
         List<Notification> notifications = notificationRepository
                 .getByReceiverLoginAndStatus(receiver.getLogin(), Notification.Status.CREATED);
-        return notifications.stream().map(this::mapNotification).toList();
+        return notifications.stream()
+                .map(this::mapNotification)
+                .toList();
     }
 
     public void markAsRead(long id) {

@@ -1,30 +1,33 @@
 package ru.itmo.is.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
-import ru.itmo.is.dto.response.NotificationResponse;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RestController;
+import ru.itmo.is.api.NotificationApi;
+import ru.itmo.is.dto.NotificationResponse;
 import ru.itmo.is.service.NotificationService;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/notification")
 @RequiredArgsConstructor
-public class NotificationController {
+public class NotificationController implements NotificationApi {
     private final NotificationService notificationService;
 
-    @GetMapping("/unread")
-    public List<NotificationResponse> getUnreadNotifications() {
-        return notificationService.getUnreadNotifications();
+    @Override
+    public ResponseEntity<List<NotificationResponse>> getUnreadNotifications() {
+        return ResponseEntity.ok(notificationService.getUnreadNotifications());
     }
 
-    @PostMapping("/mark-as-read")
-    public void markAsRead(@RequestParam("id") long id) {
+    @Override
+    public ResponseEntity<Void> markAsRead(Long id) {
         notificationService.markAsRead(id);
+        return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/mark-all-as-read")
-    public void markAllAsRead() {
+    @Override
+    public ResponseEntity<Void> markAllAsRead() {
         notificationService.markAllAsRead();
+        return ResponseEntity.ok().build();
     }
 }
