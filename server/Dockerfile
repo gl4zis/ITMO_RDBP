@@ -10,6 +10,7 @@ RUN ./gradlew bootJar --no-daemon
 
 FROM eclipse-temurin:17-jre
 WORKDIR /app
+RUN mkdir -p uploads
 
 COPY --from=build /app/build/libs/*.jar app.jar
 EXPOSE 8183

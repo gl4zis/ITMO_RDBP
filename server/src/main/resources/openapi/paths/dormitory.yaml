@@ -1,0 +1,101 @@
+root:
+  get:
+    summary: 'Get all dormitory entities'
+    operationId: getAllDormitories
+    tags:
+      - Dormitory
+    responses:
+      200:
+        description: 'List of dormitories'
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components/schemas/responses.yaml#/DormitoryResponse'
+  post:
+    summary: 'Create new dormitory entity'
+    operationId: addDormitory
+    tags:
+      - Dormitory
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/requests.yaml#/DormitoryRequest'
+    responses:
+      200:
+        description: 'Dormitory created successfully'
+      400:
+        description: 'Invalid request body'
+      401:
+        description: 'Unauthorized'
+      403:
+        description: 'No rights'
+
+'{id}':
+  get:
+    summary: 'Get dormitory entity by id'
+    operationId: getDormitory
+    tags:
+      - Dormitory
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      200:
+        description: 'Dormitory entity'
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/responses.yaml#/DormitoryResponse'
+      404:
+        description: 'Dormitory not found by id'
+  put:
+    summary: 'Update dormitory entity'
+    operationId: updateDormitory
+    tags:
+      - Dormitory
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/requests.yaml#/DormitoryRequest'
+      200:
+        description: 'Dormitory created successfully'
+      400:
+        description: 'Invalid request body'
+      401:
+        description: 'Unauthorized'
+      403:
+        description: 'No rights'
+      404:
+        description: 'Dormitory not found by id'
+  delete:
+    summary: 'Delete dormitory entity'
+    operationId: deleteDormitory
+    tags:
+      - Dormitory
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    200:
+      description: 'Dormitory created successfully'
+    401:
+      description: 'Unauthorized'
+    403:
+      description: 'No rights'
+    404:
+      description: 'Dormitory not found by id'

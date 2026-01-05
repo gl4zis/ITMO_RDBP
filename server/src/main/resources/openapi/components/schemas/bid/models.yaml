@@ -1,0 +1,50 @@
+BidStatus:
+  type: string
+  enum:
+    - IN_PROCESS
+    - PENDING_REVISION
+    - ACCEPTED
+    - DENIED
+
+BidType:
+  type: string
+  enum:
+    - OCCUPATION
+    - DEPARTURE
+    - ROOM_CHANGE
+    - EVICTION
+
+DepartureBid:
+  x-internal: true
+  type: object
+  required:
+    - dayFrom
+    - dayTo
+  properties:
+    dayFrom:
+      type: string
+      format: date
+    dayTo:
+      type: string
+      format: date
+
+OccupationBid:
+  x-internal: true
+  type: object
+  required:
+    - universityId
+    - dormitoryId
+  properties:
+    universityId:
+      type: integer
+    dormitoryId:
+      type: integer
+
+RoomChangeBid:
+  x-internal: true
+  type: object
+  properties:
+    roomToId:
+      type: integer
+    roomPreferType:
+      $ref: '../models.yaml#/RoomType'

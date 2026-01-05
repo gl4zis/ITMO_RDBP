@@ -1,0 +1,133 @@
+openapi: 3.0.3
+
+info:
+  title: 'Dormitory system'
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8183
+
+tags:
+  - name: Auth
+    description: 'Methods for users authentication'
+  - name: Bid
+    description: 'Methods for working with user bids'
+  - name: Dormitory
+    description: 'Methods for working with dormitory entities'
+  - name: File
+    description: 'Methods for saving and getting files'
+  - name: Guard
+    description: 'Methods for control residents entries and exits'
+  - name: Notification
+    description: 'Methods for reads notifications for current users'
+  - name: Payment
+    description: 'Methods for pay by rooms for residents and get info about payments'
+  - name: Room
+    description: 'Methods for operations with room entities'
+  - name: University
+    description: 'Methods for operations with university entities'
+  - name: User
+    description: 'Methods for get info about users'
+
+paths:
+  /auth/register:
+    $ref: './paths/auth.yaml#/register'
+  /auth/login:
+    $ref: './paths/auth.yaml#/login'
+  /auth/register-other:
+    $ref: './paths/auth.yaml#/register-other'
+  /auth/change-password:
+    $ref: './paths/auth.yaml#/change-password'
+  /auth/profile:
+    $ref: './paths/auth.yaml#/profile'
+
+  /bid/my:
+    $ref: './paths/bid.yaml#/my'
+  /bid/my/opened-types:
+    $ref: './paths/bid.yaml#/my~1opened-types'
+  /bid/{id}:
+    $ref: './paths/bid.yaml#/{id}'
+  /bid/in-process:
+    $ref: './paths/bid.yaml#/in-process'
+  /bid/pending:
+    $ref: './paths/bid.yaml#/pending'
+  /bid/archived:
+    $ref: './paths/bid.yaml#/archived'
+  /bid/occupation:
+    $ref: './paths/bid.yaml#/occupation'
+  /bid/occupation/{id}:
+    $ref: './paths/bid.yaml#/occupation~1{id}'
+  /bid/eviction:
+    $ref: './paths/bid.yaml#/eviction'
+  /bid/eviction/{id}:
+    $ref: './paths/bid.yaml#/eviction~1{id}'
+  /bid/departure:
+    $ref: './paths/bid.yaml#/departure'
+  /bid/departure/{id}:
+    $ref: './paths/bid.yaml#/departure~1{id}'
+  /bid/room-change:
+    $ref: './paths/bid.yaml#/room-change'
+  /bid/room-change/{id}:
+    $ref: './paths/bid.yaml#/room-change~1{id}'
+  /bid/{id}/accept:
+    $ref: './paths/bid.yaml#/{id}~1accept'
+  /bid/{id}/pend:
+    $ref: './paths/bid.yaml#/{id}~1pend'
+  /bid/{id}/deny:
+    $ref: './paths/bid.yaml#/{id}~1deny'
+
+  /dormitory:
+    $ref: './paths/dormitory.yaml#/root'
+  /dormitory/{id}:
+    $ref: './paths/dormitory.yaml#/{id}'
+
+  /file/upload:
+    $ref: './paths/file.yaml#/upload'
+  /file/download/{key}:
+    $ref: './paths/file.yaml#/download~1{key}'
+
+  /guard/entry:
+    $ref: './paths/guard.yaml#/entry'
+  /guard/exit:
+    $ref: './paths/guard.yaml#/exit'
+  /guard/history:
+    $ref: './paths/guard.yaml#/history'
+  /guard/history/self:
+    $ref: './paths/guard.yaml#/history~1self'
+
+  /notification/unread:
+    $ref: './paths/notification.yaml#/unread'
+  /notification/mark-as-read:
+    $ref: './paths/notification.yaml#/mark-as-read'
+  /notification/mark-all-as-read:
+    $ref: './paths/notification.yaml#/mark-all-as-read'
+
+  /payment/info:
+    $ref: './paths/payment.yaml#/info-other'
+  /payment/info/self:
+    $ref: './paths/payment.yaml#/info~1self'
+  /payment/pay:
+    $ref: './paths/payment.yaml#/pay'
+
+  /room:
+    $ref: './paths/room.yaml#/root'
+  /room/{id}:
+    $ref: './paths/room.yaml#/{id}'
+  /room/for-resident:
+    $ref: './paths/room.yaml#/for-resident'
+
+  /university:
+    $ref: './paths/university.yaml#/root'
+  /university/{id}:
+    $ref: './paths/university.yaml#/{id}'
+
+  /user/staff:
+    $ref: './paths/user.yaml#/staff'
+  /user/fire:
+    $ref: './paths/user.yaml#/fire'
+  /user/residents:
+    $ref: './paths/user.yaml#/residents'
+  /user/residents/to-eviction:
+    $ref: './paths/user.yaml#/residents~1to-eviction'
+  /user/residents/evict:
+    $ref: './paths/user.yaml#/residents~1evict'

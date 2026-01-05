@@ -1,0 +1,105 @@
+register:
+  post:
+    summary: 'Register new user and get token'
+    operationId: register
+    tags:
+      - Auth
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/requests.yaml#/RegisterRequest'
+    responses:
+      200:
+        description: 'User registered successfully'
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/models.yaml#/StringData'
+      400:
+        description: 'Invalid request body'
+      401:
+        description: 'No rights to register manager'
+      409:
+        description: 'User with this login already exists'
+
+login:
+  post:
+    summary: 'Authorize user by login and password and get token'
+    operationId: login
+    tags:
+      - Auth
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/requests.yaml#/LoginRequest'
+    responses:
+      200:
+        description: 'User successfully authorized, token returned'
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/models.yaml#/StringData'
+      401:
+        description: 'Invalid credentials'
+
+register-other:
+  post:
+    summary: 'Register another user. Access only for managers'
+    operationId: registerOther
+    tags:
+      - Auth
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/requests.yaml#/RegisterRequest'
+    responses:
+      200:
+        description: 'User successfully registered'
+      400:
+        description: 'Invalid request body'
+      401:
+        description: "Unauthorized"
+      403:
+        description: 'No rights'
+
+change-password:
+  post:
+    summary: 'Change account password'
+    operationId: changePassword
+    tags:
+      - Auth
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/requests.yaml#/PasswordChangeRequest'
+    responses:
+      200:
+        description: 'Password was successfully changed'
+      400:
+        description: 'Invalid request body or old password does not match'
+      401:
+        description: 'Unauthorized'
+
+profile:
+  get:
+    summary: 'Get self profile info'
+    operationId: getProfile
+    tags:
+      - Auth
+    responses:
+      200:
+        description: 'Profile info'
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/responses.yaml#/ProfileResponse'
+      401:
+        description: 'Unauthorized'

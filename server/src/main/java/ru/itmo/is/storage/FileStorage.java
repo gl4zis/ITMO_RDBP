@@ -6,7 +6,6 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
-import ru.itmo.is.dto.response.FileResponse;
 import ru.itmo.is.exception.InternalServerErrorException;
 import ru.itmo.is.exception.NotFoundException;
 
@@ -36,14 +35,14 @@ public class FileStorage {
         }
     }
 
-    public FileResponse get(FileRecord record) {
+    public FileData get(FileRecord record) {
         Path path = Paths.get(storageDir, record.getKey());
         Resource resource = new FileSystemResource(path);
         if (!resource.exists() || !resource.isReadable()) {
             throw new NotFoundException("File not found");
         }
 
-        return new FileResponse(record.getName(), resource);
+        return new FileData(record.getName(), resource);
     }
 
     private String generateKey() {

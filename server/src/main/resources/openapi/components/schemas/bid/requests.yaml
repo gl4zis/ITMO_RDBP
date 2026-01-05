@@ -1,0 +1,33 @@
+BidRequest:
+  type: object
+  required:
+    - text
+    - attachmentKeys
+  properties:
+    text:
+      type: string
+    attachmentKeys:
+      type: array
+      items:
+        type: string
+
+DepartureRequest:
+  x-class-extra-annotation: "@ru.itmo.is.validation.ValidDeparture"
+  allOf:
+    - $ref: '#/BidRequest'
+    - $ref: './models.yaml#/DepartureBid'
+
+OccupationRequest:
+  allOf:
+    - $ref: '#/BidRequest'
+    - $ref: './models.yaml#/OccupationBid'
+
+RoomChangeRequest:
+  x-class-extra-annotation: "@ru.itmo.is.validation.ValidRoomChange"
+  allOf:
+    - $ref: '#/BidRequest'
+    - $ref: './models.yaml#/RoomChangeBid'
+
+EvictionRequest:
+  allOf:
+    - $ref: '#/BidRequest'

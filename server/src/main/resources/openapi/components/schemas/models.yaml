@@ -1,0 +1,79 @@
+StringData:
+  type: object
+  required:
+    - data
+  properties:
+    data:
+      type: string
+
+RoomType:
+  type: string
+  enum:
+    - BLOCK
+    - AISLE
+
+UserRole:
+  type: string
+  enum:
+    - NON_RESIDENT
+    - RESIDENT
+    - MANAGER
+    - GUARD
+
+GuardHistory:
+  type: object
+  required:
+    - timestamp
+    - type
+  properties:
+    timestamp:
+      type: string
+      format: date-time
+    type:
+      type: string
+      enum:
+        - IN
+        - OUT
+
+Room:
+  x-internal: true
+  type: object
+  required:
+    - dormitoryId
+    - number
+    - type
+    - capacity
+    - floor
+    - cost
+  properties:
+    dormitoryId:
+      type: integer
+    number:
+      type: integer
+    type:
+      $ref: '#/RoomType'
+    capacity:
+      type: integer
+    floor:
+      type: integer
+    cost:
+      type: integer
+
+University:
+  x-internal: true
+  type: object
+  required:
+    - name
+    - address
+  properties:
+    name:
+      type: string
+    address:
+      type: string
+
+EvictionReason:
+  type: string
+  enum:
+    - NON_PAYMENT
+    - NON_RESIDENCE
+    - RULE_VIOLATION

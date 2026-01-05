@@ -2,13 +2,14 @@ package ru.itmo.is.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.itmo.is.dto.request.RoomRequest;
-import ru.itmo.is.dto.response.RoomResponse;
+import ru.itmo.is.dto.RoomRequest;
+import ru.itmo.is.dto.RoomResponse;
 import ru.itmo.is.entity.dorm.Dormitory;
 import ru.itmo.is.entity.dorm.Room;
 import ru.itmo.is.entity.user.Resident;
 import ru.itmo.is.exception.BadRequestException;
 import ru.itmo.is.exception.NotFoundException;
+import ru.itmo.is.mapper.RoomMapper;
 import ru.itmo.is.repository.DormitoryRepository;
 import ru.itmo.is.repository.RoomRepository;
 
@@ -22,22 +23,23 @@ public class RoomService {
     private final UserService userService;
     private final RoomRepository roomRepository;
     private final DormitoryRepository dormitoryRepository;
+    private final RoomMapper roomMapper;
 
     public List<RoomResponse> getAllRooms() {
-        return roomRepository.findAllByOrderById().stream().map(RoomResponse::new).toList();
+        return roomRepository.findAllByOrderById().stream().map(roomMapper::roomToDto).toList();
     }
 
     public List<RoomResponse> getForResident() {
         Resident resident = userService.getCurrentResidentOrThrow();
         return roomRepository.getAvailableInDormitory(resident.getRoom().getDormitory().getId()).stream()
                 .filter(r -> !Objects.equals(r.getId(), resident.getRoom().getId()))
-                .map(RoomResponse::new)
+                .map(roomMapper::roomToDto)
                 .toList();
     }
 
     public RoomResponse getRoom(int id) {
         return roomRepository.findById(id)
-                .map(RoomResponse::new)
+                .map(roomMapper::roomToDto)
                 .orElseThrow(() -> new NotFoundException("No such room"));
     }
 
@@ -54,7 +56,7 @@ public class RoomService {
         Room room = new Room();
         room.setDormitory(dormO.get());
         room.setNumber(req.getNumber());
-        room.setType(req.getType());
+        room.setType(roomMapper.mapRoomTypeToModel(req.getType()));
         room.setCapacity(req.getCapacity());
         room.setFloor(req.getFloor());
         room.setCost(req.getCost());

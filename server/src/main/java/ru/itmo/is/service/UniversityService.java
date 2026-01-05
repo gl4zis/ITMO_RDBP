@@ -2,10 +2,11 @@ package ru.itmo.is.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.itmo.is.dto.request.UniversityRequest;
-import ru.itmo.is.dto.response.UniversityResponse;
+import ru.itmo.is.dto.UniversityRequest;
+import ru.itmo.is.dto.UniversityResponse;
 import ru.itmo.is.entity.dorm.University;
 import ru.itmo.is.exception.NotFoundException;
+import ru.itmo.is.mapper.UniversityMapper;
 import ru.itmo.is.repository.UniversityRepository;
 
 import java.util.List;
@@ -14,14 +15,15 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UniversityService {
     private final UniversityRepository universityRepository;
+    private final UniversityMapper universityMapper;
 
     public List<UniversityResponse> getAllUniversities() {
-        return universityRepository.findAllByOrderById().stream().map(UniversityResponse::new).toList();
+        return universityRepository.findAllByOrderById().stream().map(universityMapper::toResponse).toList();
     }
 
     public UniversityResponse getUniversity(int id) {
         return universityRepository.findById(id)
-                .map(UniversityResponse::new)
+                .map(universityMapper::toResponse)
                 .orElseThrow(() -> new NotFoundException("University not found"));
     }
 

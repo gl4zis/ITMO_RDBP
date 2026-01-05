@@ -29,16 +29,6 @@ public class User {
     @OneToMany(mappedBy = "usr", fetch = FetchType.LAZY)
     private List<Event> events;
 
-    public static User nonResident(Resident resident) {
-        User user = new User();
-        user.setLogin(resident.getLogin());
-        user.setPassword(resident.getPassword());
-        user.setName(resident.getName());
-        user.setSurname(resident.getSurname());
-        user.setRole(Role.NON_RESIDENT);
-        return user;
-    }
-
     @Override
     public int hashCode() {
         return login.hashCode();
