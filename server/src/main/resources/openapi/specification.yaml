@@ -10,6 +10,8 @@ servers:
 tags:
   - name: Auth
     description: 'Methods for users authentication'
+  - name: Bid
+    description: 'Methods for working with user bids'
   - name: File
     description: 'Methods for saving and getting files'
 
@@ -115,6 +117,404 @@ paths:
                 $ref: '#/components/schemas/ProfileResponse'
         401:
           description: 'Unauthorized'
+
+  /bid/my/opened-types:
+    get:
+      summary: 'Returns types of user opened bids'
+      operationId: getSelfOpenedBidTypes
+      tags:
+        - Bid
+      responses:
+        200:
+          description: 'List of bid types'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BidType'
+        401:
+          description: 'Unauthorized'
+        403:
+          description: 'Invalid role'
+  /bid/my:
+    get:
+      summary: 'Returns all user bids'
+      operationId: getSelfBids
+      tags:
+        - Bid
+      responses:
+        200:
+          description: 'List of user bids'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BidResponse'
+        401:
+          description: 'Unauthorized'
+        403:
+          description: 'Invalid role'
+  /bid/{id}:
+    get:
+      summary: 'Returns bid by id'
+      operationId: getBid
+      tags:
+        - Bid
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: 'Bid entity'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BidResponse'
+        400:
+          description: 'Invalid id'
+        401:
+          description: 'Unauthorized'
+        403:
+          description: 'Invalid role'
+        404:
+          description: 'Bid not found by id'
+  /bid/in-process:
+    get:
+      summary: 'Returns all in process bids'
+      operationId: getInProcessBids
+      tags:
+        - Bid
+      responses:
+        200:
+          description: 'List of in process bid entities'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BidResponse'
+        401:
+          description: 'Unauthorized'
+        403:
+          description: 'Invalid role'
+  /bid/pending:
+    get:
+      summary: 'Returns all pending bids'
+      operationId: getPendingBids
+      tags:
+        - Bid
+      responses:
+        200:
+          description: 'List of pending bid entities'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BidResponse'
+        401:
+          description: 'Unauthorized'
+        403:
+          description: 'Invalid role'
+  /bid/archived:
+    get:
+      summary: 'Returns all archived bids'
+      operationId: getArchivedBids
+      tags:
+        - Bid
+      responses:
+        200:
+          description: 'List of archived bid entities'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BidResponse'
+        401:
+          description: 'Unauthorized'
+        403:
+          description: 'Invalid role'
+  /bid/occupation:
+    post:
+      summary: 'Create occupation bid'
+      operationId: createOccupationBid
+      tags:
+        - Bid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OccupationRequest'
+      responses:
+        200:
+          description: 'Bid successfully created'
+        400:
+          description: 'Invalid request body'
+        401:
+          description: 'Unauthorized'
+        403:
+          description: 'Invalid role'
+  /bid/occupation/{id}:
+    put:
+      summary: 'Update occupation bid'
+      operationId: updateOccupationBid
+      tags:
+        - Bid
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OccupationRequest'
+      responses:
+        200:
+          description: 'Bid successfully updated'
+        400:
+          description: 'Invalid request body'
+        401:
+          description: 'Unauthorized'
+        403:
+          description: 'Invalid role'
+        404:
+          description: 'Bid not found by id'
+  /bid/eviction:
+    post:
+      summary: 'Create eviction bid'
+      operationId: createEvictionBid
+      tags:
+        - Bid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BidRequest'
+      responses:
+        200:
+          description: 'Bid successfully created'
+        400:
+          description: 'Invalid request body'
+        401:
+          description: 'Unauthorized'
+        403:
+          description: 'Invalid role'
+  /bid/eviction/{id}:
+    put:
+      summary: 'Update eviction bid'
+      operationId: updateEvictionBid
+      tags:
+        - Bid
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BidRequest'
+      responses:
+        200:
+          description: 'Bid successfully created'
+        400:
+          description: 'Invalid request body'
+        401:
+          description: 'Unauthorized'
+        403:
+          description: 'Invalid role'
+        404:
+          description: 'Bid not found by id'
+  /bid/departure:
+    post:
+      summary: 'Create departure bid'
+      operationId: createDepartureBid
+      tags:
+        - Bid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepartureRequest'
+      responses:
+        200:
+          description: 'Bid successfully created'
+        400:
+          description: 'Invalid request body'
+        401:
+          description: 'Unauthorized'
+        403:
+          description: 'Invalid role'
+  /bid/departure/{id}:
+    put:
+      summary: 'Update departure bid'
+      operationId: updateDepartureBid
+      tags:
+        - Bid
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepartureRequest'
+      responses:
+        200:
+          description: 'Bid successfully created'
+        400:
+          description: 'Invalid request body'
+        401:
+          description: 'Unauthorized'
+        403:
+          description: 'Invalid role'
+        404:
+          description: 'Bid not found by id'
+  /bid/room-change:
+    post:
+      summary: 'Create room change bid'
+      operationId: createRoomChangeBid
+      tags:
+        - Bid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoomChangeRequest'
+      responses:
+        200:
+          description: 'Bid successfully created'
+        400:
+          description: 'Invalid request body'
+        401:
+          description: 'Unauthorized'
+        403:
+          description: 'Invalid role'
+  /bid/room-change/{id}:
+    put:
+      summary: 'Update room change bid'
+      operationId: updateRoomChangeBid
+      tags:
+        - Bid
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoomChangeRequest'
+      responses:
+        200:
+          description: 'Bid successfully created'
+        400:
+          description: 'Invalid request body'
+        401:
+          description: 'Unauthorized'
+        403:
+          description: 'Invalid role'
+        404:
+          description: 'Bid not found by id'
+  /bid/{id}/accept:
+    post:
+      summary: 'Accept bid'
+      operationId: acceptBid
+      tags:
+        - Bid
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: 'Bid successfully accepted'
+        400:
+          description: 'No free room (in case of room change or occupation bids)'
+        401:
+          description: 'Unauthorized'
+        403:
+          description: 'Invalid role'
+        404:
+          description: 'Bid not found by id'
+  /bid/{id}/pend:
+    post:
+      summary: 'Pend bid'
+      operationId: pendBid
+      tags:
+        - Bid
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OneFieldString'
+      responses:
+        200:
+          description: 'Bid successfully pended'
+        401:
+          description: 'Unauthorized'
+        403:
+          description: 'Invalid role'
+        404:
+          description: 'Bid not found by id'
+  /bid/{id}/deny:
+    post:
+      summary: 'Deny bid'
+      operationId: denyBid
+      tags:
+        - Bid
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OneFieldString'
+      responses:
+        200:
+          description: 'Bid successfully denied'
+        401:
+          description: 'Unauthorized'
+        403:
+          description: 'Invalid role'
+        404:
+          description: 'Bid not found by id'
 
   /file/upload:
     post:
@@ -240,6 +640,159 @@ components:
           type: string
         roomNumber:
           type: integer
+    BidType:
+      type: string
+      enum:
+        - OCCUPATION
+        - DEPARTURE
+        - ROOM_CHANGE
+        - EVICTION
+    BidStatus:
+      type: string
+      enum:
+        - IN_PROCESS
+        - PENDING_REVISION
+        - ACCEPTED
+        - DENIED
+    RoomType:
+      type: string
+      enum:
+        - BLOCK
+        - AISLE
+    UserResponse:
+      type: object
+      required:
+        - login
+        - name
+        - surname
+        - role
+      properties:
+        login:
+          type: string
+        name:
+          type: string
+        surname:
+          type: string
+        role:
+          $ref: '#/components/schemas/UserRole'
+    DepartureBid:
+      x-internal: true
+      type: object
+      required:
+        - dayFrom
+        - dayTo
+      properties:
+        dayFrom:
+          type: string
+          format: date
+        dayTo:
+          type: string
+          format: date
+    OccupationBid:
+      x-internal: true
+      type: object
+      required:
+        - universityId
+        - dormitoryId
+      properties:
+        universityId:
+          type: integer
+        dormitoryId:
+          type: integer
+    RoomChangeBid:
+      x-internal: true
+      type: object
+      properties:
+        roomToId:
+          type: integer
+        roomPreferType:
+          $ref: '#/components/schemas/RoomType'
+    BidResponse:
+      type: object
+      required:
+        - number
+        - sender
+        - text
+        - type
+        - attachments
+        - status
+      properties:
+        number:
+          type: integer
+          format: int64
+        sender:
+          $ref: '#/components/schemas/UserResponse'
+        manager:
+          allOf:
+            - $ref: '#/components/schemas/UserResponse'
+        comment:
+          type: string
+        text:
+          type: string
+        type:
+          $ref: '#/components/schemas/BidType'
+        attachments:
+          type: array
+          items:
+            type: object
+            required:
+              - filename
+              - downloadKey
+            properties:
+              filename:
+                type: string
+              downloadKey:
+                type: string
+        status:
+          $ref: '#/components/schemas/BidStatus'
+      discriminator:
+        propertyName: type
+        mapping:
+          DEPARTURE: DepartureResponse
+          OCCUPATION: OccupationResponse
+          ROOM_CHANGE: RoomChangeResponse
+          EVICTION: EvictionResponse
+    BidRequest:
+      type: object
+      required:
+        - text
+        - attachmentKeys
+      properties:
+        text:
+          type: string
+        attachmentKeys:
+          type: array
+          items:
+            type: string
+    DepartureResponse:
+      allOf:
+        - $ref: '#/components/schemas/BidResponse'
+        - $ref: '#/components/schemas/DepartureBid'
+    OccupationResponse:
+      allOf:
+        - $ref: '#/components/schemas/BidResponse'
+        - $ref: '#/components/schemas/OccupationBid'
+    RoomChangeResponse:
+      allOf:
+        - $ref: '#/components/schemas/BidResponse'
+        - $ref: '#/components/schemas/RoomChangeBid'
+    EvictionResponse:
+      allOf:
+        - $ref: '#/components/schemas/BidResponse'
+    DepartureRequest:
+      x-class-extra-annotation: "@ru.itmo.is.validation.ValidDeparture"
+      allOf:
+        - $ref: '#/components/schemas/BidRequest'
+        - $ref: '#/components/schemas/DepartureBid'
+    OccupationRequest:
+      allOf:
+        - $ref: '#/components/schemas/BidRequest'
+        - $ref: '#/components/schemas/OccupationBid'
+    RoomChangeRequest:
+      x-class-extra-annotation: "@ru.itmo.is.validation.ValidRoomChange"
+      allOf:
+        - $ref: '#/components/schemas/BidRequest'
+        - $ref: '#/components/schemas/RoomChangeBid'
     FileRequest:
       type: object
       required:

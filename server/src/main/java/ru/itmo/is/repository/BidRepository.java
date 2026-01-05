@@ -16,7 +16,7 @@ public interface BidRepository extends CrudRepository<Bid, Long> {
 
     boolean existsBySenderLoginAndTypeAndStatusIn(String sender, Bid.Type type, Collection<Bid.Status> status);
 
-    @Query("SELECT b.type FROM Bid b WHERE b.sender.login = :login AND (b.status = 'IN_PROCESS' or b.status = 'PENDING_REVISION')")
+    @Query("SELECT DISTINCT b.type FROM Bid b WHERE b.sender.login = :login AND (b.status = 'IN_PROCESS' or b.status = 'PENDING_REVISION')")
     List<Bid.Type> getOpenedBidTypes(@Param("login") String login);
 
     List<Bid> getBySenderLoginAndStatusIn(String sender, Collection<Bid.Status> status);

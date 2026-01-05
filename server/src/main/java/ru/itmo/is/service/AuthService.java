@@ -3,8 +3,6 @@ package ru.itmo.is.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.itmo.is.dto.*;
-import ru.itmo.is.dto.RegisterRequest;
-import ru.itmo.is.entity.user.Resident;
 import ru.itmo.is.entity.user.User;
 import ru.itmo.is.exception.BadRequestException;
 import ru.itmo.is.exception.ConflictException;
@@ -21,13 +19,13 @@ import java.util.Optional;
 public class AuthService {
     private final JwtManager jwtManager;
     private final UserRepository userRepository;
-    private final UserMapper mapper;
+    private final UserMapper userMapper;
     private final UserService userService;
 
     public OneFieldString register(RegisterRequest req) {
         return switch (req.getRole()) {
-            case MANAGER -> registerManager(mapper.toUser(req));
-            case NON_RESIDENT -> saveAndGetToken(mapper.toUser(req));
+            case MANAGER -> registerManager(userMapper.toUserModel(req));
+            case NON_RESIDENT -> saveAndGetToken(userMapper.toUserModel(req));
             default -> throw new BadRequestException("Invalid role");
         };
     }
@@ -41,7 +39,7 @@ public class AuthService {
     }
 
     public void registerOther(RegisterRequest req) {
-        saveAndGetToken(mapper.toUser(req));
+        saveAndGetToken(userMapper.toUserModel(req));
     }
 
     public void changePassword(PasswordChangeRequest req) {
@@ -54,7 +52,7 @@ public class AuthService {
     }
 
     public ProfileResponse getProfile() {
-        return mapToProfile(userService.getCurrentUserOrThrow());
+        return userMapper.mapToProfile(userService.getCurrentUserOrThrow());
     }
 
     private OneFieldString registerManager(User user) {
@@ -74,40 +72,5 @@ public class AuthService {
 
     private boolean isManagerExists() {
         return userRepository.countByRole(User.Role.MANAGER) > 0;
-    }
-
-    private ProfileResponse mapToProfile(User user) {
-        if (user instanceof Resident resident) {
-            return mapResidentToProfile(resident);
-        }
-
-        return new ProfileResponse(
-                user.getName(),
-                user.getSurname(),
-                mapProfileRole(user.getRole())
-        );
-    }
-
-    private ProfileResponse mapResidentToProfile(Resident resident) {
-        var profile = new ProfileResponse(
-                resident.getName(),
-                resident.getSurname(),
-                mapProfileRole(resident.getRole())
-        );
-
-        profile.setUniversity(resident.getUniversity().getName());
-        profile.setDormitory(resident.getRoom().getDormitory().getAddress());
-        profile.setRoomNumber(resident.getRoom().getNumber());
-
-        return profile;
-    }
-
-    private UserRole mapProfileRole(User.Role role) {
-        return switch (role) {
-            case MANAGER -> UserRole.MANAGER;
-            case NON_RESIDENT -> UserRole.NON_RESIDENT;
-            case GUARD -> UserRole.GUARD;
-            case RESIDENT -> UserRole.RESIDENT;
-        };
     }
 }

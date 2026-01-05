@@ -2,8 +2,8 @@ package ru.itmo.is.validation;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-import ru.itmo.is.dto.request.bid.RoomChangeRequest;
-import ru.itmo.is.entity.dorm.Room;
+import ru.itmo.is.dto.RoomChangeRequest;
+import ru.itmo.is.dto.RoomType;
 
 public class RoomChangeValidator implements ConstraintValidator<ValidRoomChange, RoomChangeRequest> {
     @Override
@@ -13,7 +13,7 @@ public class RoomChangeValidator implements ConstraintValidator<ValidRoomChange,
         }
 
         Integer id = roomChangeRequest.getRoomToId();
-        Room.Type type = roomChangeRequest.getRoomPreferType();
+        RoomType type = roomChangeRequest.getRoomPreferType();
         return (id == null) ^ (type == null);
     }
 }

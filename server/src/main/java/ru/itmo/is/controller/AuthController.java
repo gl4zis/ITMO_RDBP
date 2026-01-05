@@ -4,10 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import ru.itmo.is.api.AuthApi;
-import ru.itmo.is.dto.OneFieldString;
-import ru.itmo.is.dto.ProfileResponse;
-import ru.itmo.is.dto.LoginRequest;
-import ru.itmo.is.dto.RegisterRequest;
+import ru.itmo.is.dto.*;
 import ru.itmo.is.entity.user.User;
 import ru.itmo.is.security.Anonymous;
 import ru.itmo.is.security.RolesAllowed;
@@ -19,7 +16,7 @@ public class AuthController implements AuthApi {
     private final AuthService authService;
 
     @Override
-    public ResponseEntity<Void> changePassword(ru.itmo.is.dto.PasswordChangeRequest passwordChangeRequest) {
+    public ResponseEntity<Void> changePassword(PasswordChangeRequest passwordChangeRequest) {
         authService.changePassword(passwordChangeRequest);
         return ResponseEntity.ok().build();
     }

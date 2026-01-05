@@ -1,15 +1,10 @@
 package ru.itmo.is.controller;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.itmo.is.dto.OneFieldDto;
-import ru.itmo.is.dto.request.bid.BidRequest;
-import ru.itmo.is.dto.request.bid.DepartureRequest;
-import ru.itmo.is.dto.request.bid.OccupationRequest;
-import ru.itmo.is.dto.request.bid.RoomChangeRequest;
-import ru.itmo.is.dto.response.bid.BidResponse;
-import ru.itmo.is.entity.bid.Bid;
+import ru.itmo.is.api.BidApi;
+import ru.itmo.is.dto.*;
 import ru.itmo.is.entity.user.User;
 import ru.itmo.is.security.RolesAllowed;
 import ru.itmo.is.service.BidService;
@@ -17,110 +12,120 @@ import ru.itmo.is.service.BidService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/bid")
 @RequiredArgsConstructor
-public class BidController {
+public class BidController implements BidApi {
     private final BidService bidService;
 
+    @Override
     @RolesAllowed({User.Role.NON_RESIDENT, User.Role.RESIDENT})
-    @GetMapping("/my/opened-types")
-    public List<Bid.Type> getSelfOpenedBidTypes() {
-        return bidService.getSelfOpenedBidTypes();
+    public ResponseEntity<List<BidType>> getSelfOpenedBidTypes() {
+        return ResponseEntity.ok(bidService.getSelfOpenedBidTypes());
     }
 
+    @Override
     @RolesAllowed({User.Role.NON_RESIDENT, User.Role.RESIDENT})
-    @GetMapping("/my")
-    public List<BidResponse> getSelfBids() {
-        return bidService.getSelfBids();
+    public ResponseEntity<List<BidResponse>> getSelfBids() {
+        return ResponseEntity.ok(bidService.getSelfBids());
     }
 
+    @Override
     @RolesAllowed({User.Role.NON_RESIDENT, User.Role.RESIDENT, User.Role.MANAGER})
-    @GetMapping("{id}")
-    public BidResponse getBid(@PathVariable("id") long id) {
-        return bidService.getBid(id);
+    public ResponseEntity<BidResponse> getBid(Long id) {
+        return ResponseEntity.ok(bidService.getBid(id));
     }
 
+    @Override
     @RolesAllowed(User.Role.MANAGER)
-    @GetMapping("/in-process")
-    public List<BidResponse> getInProcessBids() {
-        return bidService.getInProcessBids();
+    public ResponseEntity<List<BidResponse>> getInProcessBids() {
+        return ResponseEntity.ok(bidService.getInProcessBids());
     }
 
+    @Override
     @RolesAllowed(User.Role.MANAGER)
-    @GetMapping("/pending")
-    public List<BidResponse> getPendingBids() {
-        return bidService.getPendingBids();
+    public ResponseEntity<List<BidResponse>> getPendingBids() {
+        return ResponseEntity.ok(bidService.getPendingBids());
     }
 
+    @Override
     @RolesAllowed(User.Role.MANAGER)
-    @GetMapping("/archived")
-    public List<BidResponse> getArchivedBids() {
-        return bidService.getArchivedBids();
+    public ResponseEntity<List<BidResponse>> getArchivedBids() {
+        return ResponseEntity.ok(bidService.getArchivedBids());
     }
 
+    @Override
     @RolesAllowed(User.Role.NON_RESIDENT)
-    @PostMapping("/occupation")
-    public void createOccupationBid(@RequestBody @Valid OccupationRequest req) {
-        bidService.saveOccupationBid(null, req);
+    public ResponseEntity<Void> createOccupationBid(OccupationRequest req) {
+        bidService.createOccupationBid(req);
+        return ResponseEntity.ok().build();
     }
 
+    @Override
     @RolesAllowed(User.Role.NON_RESIDENT)
-    @PutMapping("/occupation/{id}")
-    public void editOccupationBid(@PathVariable("id") long id, @RequestBody @Valid OccupationRequest req) {
-        bidService.saveOccupationBid(id, req);
+    public ResponseEntity<Void> updateOccupationBid(Long id, OccupationRequest req) {
+        bidService.updateOccupationBid(id, req);
+        return ResponseEntity.ok().build();
     }
 
+    @Override
     @RolesAllowed(User.Role.RESIDENT)
-    @PostMapping("/eviction")
-    public void createEvictionBid(@RequestBody @Valid BidRequest req) {
-        bidService.saveEvictionBid(null, req);
+    public ResponseEntity<Void> createEvictionBid(BidRequest req) {
+        bidService.createEvictionBid(req);
+        return ResponseEntity.ok().build();
     }
 
+    @Override
     @RolesAllowed(User.Role.RESIDENT)
-    @PutMapping("/eviction/{id}")
-    public void editEvictionBid(@PathVariable("id") long id, @RequestBody @Valid BidRequest req) {
-        bidService.saveEvictionBid(id, req);
+    public ResponseEntity<Void> updateEvictionBid(Long id, BidRequest req) {
+        bidService.updateEvictionBid(id, req);
+        return ResponseEntity.ok().build();
     }
 
+    @Override
     @RolesAllowed(User.Role.RESIDENT)
-    @PostMapping("/departure")
-    public void createDepartureBid(@RequestBody @Valid DepartureRequest req) {
-        bidService.saveDepartureBid(null, req);
+    public ResponseEntity<Void> createDepartureBid(DepartureRequest req) {
+        bidService.createDepartureBid(req);
+        return ResponseEntity.ok().build();
     }
 
+    @Override
     @RolesAllowed(User.Role.RESIDENT)
-    @PutMapping("/departure/{id}")
-    public void editDepartureBid(@PathVariable("id") long id, @RequestBody @Valid DepartureRequest req) {
-        bidService.saveDepartureBid(id, req);
+    public ResponseEntity<Void> updateDepartureBid(Long id, DepartureRequest req) {
+        bidService.updateDepartureBid(id, req);
+        return ResponseEntity.ok().build();
     }
 
+    @Override
     @RolesAllowed(User.Role.RESIDENT)
-    @PostMapping("/room-change")
-    public void createRoomChangeBid(@RequestBody @Valid RoomChangeRequest req) {
-        bidService.saveRoomChangeBid(null, req);
+    public ResponseEntity<Void> createRoomChangeBid(RoomChangeRequest req) {
+        bidService.createRoomChangeBid(req);
+        return ResponseEntity.ok().build();
     }
 
+    @Override
     @RolesAllowed(User.Role.RESIDENT)
-    @PutMapping("/room-change/{id}")
-    public void editRoomChangeBid(@PathVariable("id") long id, @RequestBody @Valid RoomChangeRequest req) {
-        bidService.saveRoomChangeBid(id, req);
+    public ResponseEntity<Void> updateRoomChangeBid(Long id, RoomChangeRequest req) {
+        bidService.updateRoomChangeBid(id, req);
+        return ResponseEntity.ok().build();
     }
 
+    @Override
     @RolesAllowed(User.Role.MANAGER)
-    @PostMapping("/{id}/accept")
-    public void acceptBid(@PathVariable("id") long id) {
+    public ResponseEntity<Void> acceptBid(Long id) {
         bidService.acceptBid(id);
+        return ResponseEntity.ok().build();
     }
 
+    @Override
     @RolesAllowed(User.Role.MANAGER)
-    @PostMapping("/{id}/pend")
-    public void pendBid(@PathVariable("id") long id, @RequestBody @Valid OneFieldDto<String> body) {
+    public ResponseEntity<Void> pendBid(Long id, OneFieldString body) {
         bidService.pendBid(id, body.getData());
+        return ResponseEntity.ok().build();
     }
 
+    @Override
     @RolesAllowed(User.Role.MANAGER)
-    @PostMapping("/{id}/deny")
-    public void denyBid(@PathVariable("id") long id, @RequestBody @Valid OneFieldDto<String> body) {
+    public ResponseEntity<Void> denyBid(Long id, OneFieldString body) {
         bidService.denyBid(id, body.getData());
+        return ResponseEntity.ok().build();
     }
 }
