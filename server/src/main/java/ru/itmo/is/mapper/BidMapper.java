@@ -11,6 +11,7 @@ import ru.itmo.is.entity.dorm.Room;
 @RequiredArgsConstructor
 public class BidMapper {
     private final UserMapper userMapper;
+    private final RoomMapper roomMapper;
 
     public BidResponse mapBidToDto(Bid bid) {
         return switch (bid.getType()) {
@@ -27,13 +28,6 @@ public class BidMapper {
             case OCCUPATION -> BidType.OCCUPATION;
             case ROOM_CHANGE -> BidType.ROOM_CHANGE;
             case EVICTION -> BidType.EVICTION;
-        };
-    }
-
-    public Room.Type mapRoomTypeToModel(RoomType type) {
-        return switch (type) {
-            case AISLE -> Room.Type.AISLE;
-            case BLOCK -> Room.Type.BLOCK;
         };
     }
 
@@ -61,7 +55,7 @@ public class BidMapper {
 
         @Nullable Room roomTo = bid.getRoomTo();
         response.setRoomToId(roomTo == null ? null : roomTo.getId());
-        response.setRoomPreferType(mapRoomTypeToDto(bid.getRoomPreferType()));
+        response.setRoomPreferType(roomMapper.mapRoomTypeToDto(bid.getRoomPreferType()));
         return response;
     }
 
@@ -94,13 +88,6 @@ public class BidMapper {
             case PENDING_REVISION -> BidStatus.PENDING_REVISION;
             case ACCEPTED -> BidStatus.ACCEPTED;
             case DENIED -> BidStatus.DENIED;
-        };
-    }
-
-    public RoomType mapRoomTypeToDto(Room.Type type) {
-        return switch (type) {
-            case AISLE -> RoomType.AISLE;
-            case BLOCK -> RoomType.BLOCK;
         };
     }
 }

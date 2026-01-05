@@ -34,3 +34,27 @@ GuardHistory:
       enum:
         - IN
         - OUT
+
+Room:
+  x-internal: true
+  type: object
+  required:
+    - dormitoryId
+    - number
+    - type
+    - capacity
+    - floor
+    - cost
+  properties:
+    dormitoryId:
+      type: integer
+    number:
+      type: integer
+    type:
+      $ref: '#/RoomType'
+    capacity:
+      type: integer
+    floor:
+      type: integer
+    cost:
+      type: integer

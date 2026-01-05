@@ -99,3 +99,18 @@ PaymentResponse:
       type: array
       items:
         $ref: '#/PaymentHistoryRecord'
+
+RoomResponse:
+  allOf:
+    - $ref: './models.yaml#/Room'
+    - type: object
+      required:
+        - id
+        - residents
+      properties:
+        id:
+          type: integer
+        residents:
+          type: array
+          items:
+            $ref: '#/UserResponse'

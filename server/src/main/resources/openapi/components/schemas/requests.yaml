@@ -66,3 +66,7 @@ PaymentRequest:
   properties:
     sum:
       type: integer
+
+RoomRequest:
+  allOf:
+    - $ref: './models.yaml#/Room'

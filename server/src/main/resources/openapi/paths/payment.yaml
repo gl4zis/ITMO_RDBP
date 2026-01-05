@@ -16,7 +16,7 @@ info/self:
       403:
         description: 'Invalid role'
 
-info:
+info-other:
   get:
     summary: 'Get all payment info about other resident user'
     operationId: getPaymentInfo

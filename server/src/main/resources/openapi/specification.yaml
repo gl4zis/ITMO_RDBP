@@ -22,6 +22,8 @@ tags:
     description: 'Methods for reads notifications for current users'
   - name: Payment
     description: 'Methods for pay by rooms for residents and get info about payments'
+  - name: Room
+    description: 'Methods for operations with room entities'
 
 paths:
   /auth/register:
@@ -97,8 +99,15 @@ paths:
     $ref: './paths/notification.yaml#/mark-all-as-read'
 
   /payment/info:
-    $ref: './paths/payment.yaml#/info'
+    $ref: './paths/payment.yaml#/info-other'
   /payment/info/self:
     $ref: './paths/payment.yaml#/info~1self'
   /payment/pay:
     $ref: './paths/payment.yaml#/pay'
+
+  /room:
+    $ref: './paths/room.yaml#/root'
+  /room/{id}:
+    $ref: './paths/room.yaml#/{id}'
+  /room/for-resident:
+    $ref: './paths/room.yaml#/for-resident'

@@ -19,6 +19,7 @@ import ru.itmo.is.exception.BadRequestException;
 import ru.itmo.is.exception.ForbiddenException;
 import ru.itmo.is.exception.NotFoundException;
 import ru.itmo.is.mapper.BidMapper;
+import ru.itmo.is.mapper.RoomMapper;
 import ru.itmo.is.repository.*;
 
 import java.util.List;
@@ -38,6 +39,7 @@ public class BidService {
     private final UserRepository userRepository;
     private final BidComparator bidComparator;
     private final BidMapper bidMapper;
+    private final RoomMapper roomMapper;
 
     public List<BidType> getSelfOpenedBidTypes() {
         return bidRepository.getOpenedBidTypes(userService.getCurrentUserOrThrow().getLogin())
@@ -241,7 +243,7 @@ public class BidService {
         bid.setSender(userService.getCurrentUserOrThrow());
         bid.setText(req.getText());
         bid.setRoomTo(roomO.orElse(null));
-        bid.setRoomPreferType(bidMapper.mapRoomTypeToModel(req.getRoomPreferType()));
+        bid.setRoomPreferType(roomMapper.mapRoomTypeToModel(req.getRoomPreferType()));
         bidRepository.save(bid);
 
         updateBidFiles(req.getAttachmentKeys(), bid);

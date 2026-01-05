@@ -1,0 +1,100 @@
+root:
+  get:
+    summary: 'Get all exists rooms'
+    operationId: getAllRooms
+    tags:
+      - Room
+    responses:
+      200:
+        description: 'List of room entities'
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components/schemas/responses.yaml#/RoomResponse'
+  post:
+    summary: 'Create new room entity'
+    operationId: addRoom
+    tags:
+      - Room
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/requests.yaml#/RoomRequest'
+    responses:
+      200:
+        description: 'Room added successfully'
+      400:
+        description: 'Invalid body'
+      401:
+        description: 'Unauthorized'
+      403:
+        description: 'Invalid role'
+
+for-resident:
+  get:
+    summary: 'Get available rooms for current user'
+    operationId: getForResident
+    tags:
+      - Room
+    responses:
+      200:
+        description: 'List of room entities'
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components/schemas/responses.yaml#/RoomResponse'
+      401:
+        description: 'Unauthorized'
+      403:
+        description: 'Invalid role'
+
+'{id}':
+  get:
+    summary: 'Get room by id'
+    operationId: getRoom
+    tags:
+      - Room
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      200:
+        description: 'Room entity'
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/responses.yaml#/RoomResponse'
+      400:
+        description: 'Invalid id send in query'
+      404:
+        description: 'Room not found by id'
+  delete:
+    summary: 'Delete room by id'
+    operationId: deleteRoom
+    tags:
+      - Room
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      200:
+        description: 'Room deleted successfully'
+      400:
+        description: 'Invalid id send in query or room has residents and cannot be removed'
+      401:
+        description: 'Unauthorized'
+      403:
+        description: 'Invalid role'
+      404:
+        description: 'Room not found by id'
