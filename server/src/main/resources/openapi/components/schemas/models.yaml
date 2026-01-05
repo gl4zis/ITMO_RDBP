@@ -70,3 +70,10 @@ University:
       type: string
     address:
       type: string
+
+EvictionReason:
+  type: string
+  enum:
+    - NON_PAYMENT
+    - NON_RESIDENCE
+    - RULE_VIOLATION

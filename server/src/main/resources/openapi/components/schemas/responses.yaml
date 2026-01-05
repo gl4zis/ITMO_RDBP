@@ -15,6 +15,39 @@ UserResponse:
     role:
       $ref: './models.yaml#/UserRole'
 
+ResidentResponse:
+  allOf:
+    - $ref: '#/UserResponse'
+    - type: object
+      required:
+        - university
+        - dormitory
+        - roomNumber
+        - debt
+      properties:
+        university:
+          $ref: '#/UniversityResponse'
+        dormitory:
+          $ref: '#/DormitoryResponse'
+        roomNumber:
+          type: integer
+        debt:
+          type: integer
+        lastCameOut:
+          type: string
+          format: date-time
+
+ToEvictionResidentResponse:
+  type: object
+  required:
+    - resident
+    - reason
+  properties:
+    resident:
+      $ref: '#/UserResponse'
+    reason:
+      $ref: './models.yaml#/EvictionReason'
+
 ProfileResponse:
   allOf:
     - $ref: '#/UserResponse'

@@ -1,0 +1,102 @@
+staff:
+  get:
+    summary: 'Get info about all staff accounts'
+    operationId: getStaff
+    tags:
+      - User
+    responses:
+      200:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components/schemas/responses.yaml#/UserResponse'
+      401:
+        description: 'Unauthorized'
+      403:
+        description: 'No rights'
+
+fire:
+  delete:
+    summary: 'Remove guard account'
+    operationId: fire
+    tags:
+      - User
+    parameters:
+      - name: login
+        in: query
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: 'User successfully removed'
+      400:
+        description: 'You cannot fire not guard role'
+      401:
+        description: 'Unauthorized'
+      403:
+        description: 'No rights'
+      404:
+        description: 'User not found by login'
+
+residents:
+  get:
+    summary: 'Get info about all residents accounts'
+    operationId: getResidents
+    tags:
+      - User
+    responses:
+      200:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components/schemas/responses.yaml#/ResidentResponse'
+      401:
+        description: 'Unauthorized'
+      403:
+        description: 'No rights'
+
+residents/to-eviction:
+  get:
+    summary: 'Get info about all residents accounts, who should be evicted'
+    operationId: getToEviction
+    tags:
+      - User
+    responses:
+      200:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components/schemas/responses.yaml#/ToEvictionResidentResponse'
+      401:
+        description: 'Unauthorized'
+      403:
+        description: 'No rights'
+
+residents/evict:
+  post:
+    summary: 'Evict resident from hist dormitory'
+    operationId: evict
+    tags:
+      - User
+    parameters:
+      - name: login
+        in: query
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: 'Resident successfully evicted'
+      401:
+        description: 'Unauthorized'
+      403:
+        description: 'No rights'
+      404:
+        description: 'Resident not found by login'

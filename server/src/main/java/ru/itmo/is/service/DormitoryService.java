@@ -28,13 +28,13 @@ public class DormitoryService {
     public List<DormitoryResponse> getAllDormitories() {
         return dormitoryRepository.findAllByOrderById()
                 .stream()
-                .map(dormitoryMapper::toDto)
+                .map(dormitoryMapper::toResponse)
                 .toList();
     }
 
     public DormitoryResponse getDormitory(int id) {
         return dormitoryRepository.findById(id)
-                .map(dormitoryMapper::toDto)
+                .map(dormitoryMapper::toResponse)
                 .orElseThrow(() -> new NotFoundException("Dormitory not found"));
     }
 

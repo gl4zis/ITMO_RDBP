@@ -26,6 +26,8 @@ tags:
     description: 'Methods for operations with room entities'
   - name: University
     description: 'Methods for operations with university entities'
+  - name: User
+    description: 'Methods for get info about users'
 
 paths:
   /auth/register:
@@ -118,3 +120,14 @@ paths:
     $ref: './paths/university.yaml#/root'
   /university/{id}:
     $ref: './paths/university.yaml#/{id}'
+
+  /user/staff:
+    $ref: './paths/user.yaml#/staff'
+  /user/fire:
+    $ref: './paths/user.yaml#/fire'
+  /user/residents:
+    $ref: './paths/user.yaml#/residents'
+  /user/residents/to-eviction:
+    $ref: './paths/user.yaml#/residents~1to-eviction'
+  /user/residents/evict:
+    $ref: './paths/user.yaml#/residents~1evict'

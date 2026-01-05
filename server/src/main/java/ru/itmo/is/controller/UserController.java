@@ -1,48 +1,50 @@
 package ru.itmo.is.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
-import ru.itmo.is.dto.response.EvictionResponse;
-import ru.itmo.is.dto.response.user.ResidentResponse;
-import ru.itmo.is.dto.response.user.UserResponse;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RestController;
+import ru.itmo.is.api.UserApi;
+import ru.itmo.is.dto.ResidentResponse;
+import ru.itmo.is.dto.ToEvictionResidentResponse;
+import ru.itmo.is.dto.UserResponse;
 import ru.itmo.is.entity.user.User;
 import ru.itmo.is.security.RolesAllowed;
 import ru.itmo.is.service.BidService;
 import ru.itmo.is.service.UserService;
 
 import java.util.List;
-import java.util.Set;
 
-@RolesAllowed(User.Role.MANAGER)
 @RestController
-@RequestMapping("/user")
 @RequiredArgsConstructor
-public class UserController {
+@RolesAllowed(User.Role.MANAGER)
+public class UserController implements UserApi {
     private final UserService userService;
     private final BidService bidService;
 
-    @GetMapping("/staff")
-    public List<UserResponse> getStaff() {
-        return userService.getStaff();
+    @Override
+    public ResponseEntity<List<UserResponse>> getStaff() {
+        return ResponseEntity.ok(userService.getStaff());
     }
 
-    @DeleteMapping("/fire")
-    public void fire(@RequestParam("login") String login) {
+    @Override
+    public ResponseEntity<Void> fire(String login) {
         userService.fire(login);
+        return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/residents")
-    public List<ResidentResponse> getResidents() {
-        return userService.getResidents();
+    @Override
+    public ResponseEntity<List<ResidentResponse>> getResidents() {
+        return ResponseEntity.ok(userService.getResidents());
     }
 
-    @GetMapping("/residents/to-eviction")
-    public Set<EvictionResponse> getToEviction() {
-        return userService.getResidentsToEviction();
+    @Override
+    public ResponseEntity<List<ToEvictionResidentResponse>> getToEviction() {
+        return ResponseEntity.ok(userService.getResidentsToEviction());
     }
 
-    @PostMapping("/residents/evict")
-    public void evict(@RequestParam("login") String login) {
+    @Override
+    public ResponseEntity<Void> evict(String login) {
         bidService.evictResident(login);
+        return ResponseEntity.ok().build();
     }
 }

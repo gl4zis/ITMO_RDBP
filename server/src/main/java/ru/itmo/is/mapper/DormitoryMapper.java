@@ -11,7 +11,7 @@ import java.util.List;
 @Component
 public class DormitoryMapper {
 
-    public DormitoryResponse toDto(Dormitory dormitory) {
+    public DormitoryResponse toResponse(Dormitory dormitory) {
         var response = new DormitoryResponse();
         response.setId(dormitory.getId());
         response.setAddress(dormitory.getAddress());

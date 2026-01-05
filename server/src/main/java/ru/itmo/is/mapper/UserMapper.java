@@ -1,16 +1,20 @@
 package ru.itmo.is.mapper;
 
+import jakarta.annotation.Nullable;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.itmo.is.dto.ProfileResponse;
-import ru.itmo.is.dto.RegisterRequest;
-import ru.itmo.is.dto.UserResponse;
-import ru.itmo.is.dto.UserRole;
+import ru.itmo.is.dto.*;
 import ru.itmo.is.entity.user.Resident;
 import ru.itmo.is.entity.user.User;
 import ru.itmo.is.security.PasswordManager;
 
+import java.time.LocalDateTime;
+
 @Component
+@RequiredArgsConstructor
 public class UserMapper {
+    private final UniversityMapper universityMapper;
+    private final DormitoryMapper dormitoryMapper;
 
     public User toUserModel(RegisterRequest req) {
         var user = new User();
@@ -51,6 +55,32 @@ public class UserMapper {
                 user.getSurname(),
                 toUserRoleDto(user.getRole())
         );
+    }
+
+    public ResidentResponse toResidentResponse(Resident resident, int debt, @Nullable LocalDateTime lastCameOut) {
+        var response = new ResidentResponse();
+        response.setLogin(resident.getLogin());
+        response.setName(resident.getName());
+        response.setSurname(resident.getSurname());
+        response.setRole(toUserRoleDto(resident.getRole()));
+        response.setUniversity(universityMapper.toResponse(resident.getUniversity()));
+        response.setDormitory(dormitoryMapper.toResponse(resident.getRoom().getDormitory()));
+        response.setRoomNumber(resident.getRoom().getNumber());
+        response.setDebt(debt);
+        response.setLastCameOut(lastCameOut);
+        return response;
+    }
+
+    public ToEvictionResidentResponse nonPaymentEvictResponse(User user) {
+        return new ToEvictionResidentResponse(mapUserResponse(user), EvictionReason.NON_PAYMENT);
+    }
+
+    public ToEvictionResidentResponse nonResidenceEvictResponse(User user) {
+        return new ToEvictionResidentResponse(mapUserResponse(user), EvictionReason.NON_RESIDENCE);
+    }
+
+    public ToEvictionResidentResponse ruleViolationEvictResponse(User user) {
+        return new ToEvictionResidentResponse(mapUserResponse(user), EvictionReason.RULE_VIOLATION);
     }
 
     private ProfileResponse mapResidentToProfile(Resident resident) {
