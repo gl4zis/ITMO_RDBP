@@ -47,7 +47,7 @@ exit:
         description: 'Resident not found by login'
 
 history:
-  post:
+  get:
     summary: 'Get entry and exit history for specific resident'
     operationId: getHistory
     tags:
@@ -75,7 +75,7 @@ history:
         description: 'Resident not found by login'
 
 history/self:
-  post:
+  get:
     summary: 'Get entry and exit history for current user'
     operationId: getSelfHistory
     tags:
