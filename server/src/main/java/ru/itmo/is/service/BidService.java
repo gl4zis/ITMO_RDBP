@@ -163,12 +163,12 @@ public class BidService {
         updateBidFiles(req.getAttachmentKeys(), bid);
     }
 
-    public void createEvictionBid(BidRequest req) {
+    public void createEvictionBid(EvictionRequest req) {
         checkUserBidIsNotExists(Bid.Type.EVICTION);
         saveEvictionBid(new Bid(), req);
     }
 
-    public void updateEvictionBid(long bidId, BidRequest req) {
+    public void updateEvictionBid(long bidId, EvictionRequest req) {
         checkEditableBid(bidId, Bid.Type.EVICTION);
         var bid = bidRepository.findById(bidId)
                 .filter(eBid -> eBid.getType() == Bid.Type.EVICTION)
@@ -176,7 +176,7 @@ public class BidService {
         saveEvictionBid(bid, req);
     }
 
-    private void saveEvictionBid(Bid bid, BidRequest req) {
+    private void saveEvictionBid(Bid bid, EvictionRequest req) {
         bid.setStatus(Bid.Status.IN_PROCESS);
         bid.setFiles(bidFileRepository.getByKeyIn(req.getAttachmentKeys()));
         bid.setSender(userService.getCurrentUserOrThrow());

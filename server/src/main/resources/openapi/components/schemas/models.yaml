@@ -1,0 +1,21 @@
+StringData:
+  type: object
+  required:
+    - data
+  properties:
+    data:
+      type: string
+
+RoomType:
+  type: string
+  enum:
+    - BLOCK
+    - AISLE
+
+UserRole:
+  type: string
+  enum:
+    - NON_RESIDENT
+    - RESIDENT
+    - MANAGER
+    - GUARD

@@ -22,7 +22,7 @@ public class AuthService {
     private final UserMapper userMapper;
     private final UserService userService;
 
-    public OneFieldString register(RegisterRequest req) {
+    public StringData register(RegisterRequest req) {
         return switch (req.getRole()) {
             case MANAGER -> registerManager(userMapper.toUserModel(req));
             case NON_RESIDENT -> saveAndGetToken(userMapper.toUserModel(req));
@@ -30,12 +30,12 @@ public class AuthService {
         };
     }
 
-    public OneFieldString login(LoginRequest req) {
+    public StringData login(LoginRequest req) {
         Optional<User> userO = userRepository.findById(req.getLogin());
         if (userO.isEmpty() || !PasswordManager.matches(req.getPassword(), userO.get().getPassword())) {
             throw new UnauthorizedException("Invalid credentials");
         }
-        return new OneFieldString(jwtManager.createToken(userO.get()));
+        return new StringData(jwtManager.createToken(userO.get()));
     }
 
     public void registerOther(RegisterRequest req) {
@@ -55,19 +55,19 @@ public class AuthService {
         return userMapper.mapToProfile(userService.getCurrentUserOrThrow());
     }
 
-    private OneFieldString registerManager(User user) {
+    private StringData registerManager(User user) {
         if (isManagerExists()) {
             throw new UnauthorizedException("Invalid role");
         }
         return saveAndGetToken(user);
     }
 
-    private OneFieldString saveAndGetToken(User user) {
+    private StringData saveAndGetToken(User user) {
         if (userRepository.existsByLogin(user.getLogin())) {
             throw new ConflictException("User already exists");
         }
         userRepository.save(user);
-        return new OneFieldString(jwtManager.createToken(user));
+        return new StringData(jwtManager.createToken(user));
     }
 
     private boolean isManagerExists() {

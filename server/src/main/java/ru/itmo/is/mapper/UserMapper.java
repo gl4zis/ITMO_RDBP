@@ -37,6 +37,7 @@ public class UserMapper {
         }
 
         return new ProfileResponse(
+                user.getLogin(),
                 user.getName(),
                 user.getSurname(),
                 toUserRoleDto(user.getRole())
@@ -54,6 +55,7 @@ public class UserMapper {
 
     private ProfileResponse mapResidentToProfile(Resident resident) {
         var profile = new ProfileResponse(
+                resident.getLogin(),
                 resident.getName(),
                 resident.getSurname(),
                 toUserRoleDto(resident.getRole())

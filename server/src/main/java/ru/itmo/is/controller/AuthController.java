@@ -28,13 +28,13 @@ public class AuthController implements AuthApi {
 
     @Override
     @Anonymous
-    public ResponseEntity<OneFieldString> login(LoginRequest loginRequest) {
+    public ResponseEntity<StringData> login(LoginRequest loginRequest) {
         return ResponseEntity.ok(authService.login(loginRequest));
     }
 
     @Override
     @Anonymous
-    public ResponseEntity<OneFieldString> register(RegisterRequest registerRequest) {
+    public ResponseEntity<StringData> register(RegisterRequest registerRequest) {
         return ResponseEntity.ok(authService.register(registerRequest));
     }
 

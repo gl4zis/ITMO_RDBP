@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import ru.itmo.is.api.FileApi;
-import ru.itmo.is.dto.OneFieldString;
+import ru.itmo.is.dto.StringData;
 import ru.itmo.is.dto.response.FileResponse;
 import ru.itmo.is.service.FileService;
 
@@ -30,7 +30,7 @@ public class FileController implements FileApi {
     }
 
     @Override
-    public ResponseEntity<OneFieldString> uploadFile(MultipartFile file) {
-        return ResponseEntity.ok(new OneFieldString(fileService.upload(file)));
+    public ResponseEntity<StringData> uploadFile(MultipartFile file) {
+        return ResponseEntity.ok(new StringData(fileService.upload(file)));
     }
 }

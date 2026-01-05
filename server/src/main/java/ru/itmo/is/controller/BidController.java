@@ -68,14 +68,14 @@ public class BidController implements BidApi {
 
     @Override
     @RolesAllowed(User.Role.RESIDENT)
-    public ResponseEntity<Void> createEvictionBid(BidRequest req) {
+    public ResponseEntity<Void> createEvictionBid(EvictionRequest req) {
         bidService.createEvictionBid(req);
         return ResponseEntity.ok().build();
     }
 
     @Override
     @RolesAllowed(User.Role.RESIDENT)
-    public ResponseEntity<Void> updateEvictionBid(Long id, BidRequest req) {
+    public ResponseEntity<Void> updateEvictionBid(Long id, EvictionRequest req) {
         bidService.updateEvictionBid(id, req);
         return ResponseEntity.ok().build();
     }
@@ -117,14 +117,14 @@ public class BidController implements BidApi {
 
     @Override
     @RolesAllowed(User.Role.MANAGER)
-    public ResponseEntity<Void> pendBid(Long id, OneFieldString body) {
+    public ResponseEntity<Void> pendBid(Long id, StringData body) {
         bidService.pendBid(id, body.getData());
         return ResponseEntity.ok().build();
     }
 
     @Override
     @RolesAllowed(User.Role.MANAGER)
-    public ResponseEntity<Void> denyBid(Long id, OneFieldString body) {
+    public ResponseEntity<Void> denyBid(Long id, StringData body) {
         bidService.denyBid(id, body.getData());
         return ResponseEntity.ok().build();
     }

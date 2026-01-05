@@ -1,0 +1,54 @@
+upload:
+  post:
+    summary: 'Upload file on server'
+    operationId: uploadFile
+    tags:
+      - File
+    requestBody:
+      required: true
+      content:
+        multipart/form-data:
+          schema:
+            $ref: "../components/schemas/requests.yaml#/FileRequest"
+          encoding:
+            file:
+              contentType: application/octet-stream
+    responses:
+      200:
+        description: 'File uploaded successfully'
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/models.yaml#/StringData'
+      400:
+        description: 'Parameter file not found in request'
+      500:
+        description: 'Error while saving file'
+
+download/{key}:
+  get:
+    summary: 'Download file by key'
+    operationId: downloadFile
+    tags:
+      - File
+    parameters:
+      - name: key
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: 'File found and returned successfully'
+        headers:
+          Content-Disposition:
+            description: 'Attachment filename'
+            schema:
+              type: string
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      404:
+        description: 'File not found'

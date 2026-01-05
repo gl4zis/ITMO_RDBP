@@ -1,0 +1,28 @@
+UserResponse:
+  type: object
+  required:
+    - login
+    - name
+    - surname
+    - role
+  properties:
+    login:
+      type: string
+    name:
+      type: string
+    surname:
+      type: string
+    role:
+      $ref: './models.yaml#/UserRole'
+
+ProfileResponse:
+  allOf:
+    - $ref: '#/UserResponse'
+    - type: object
+      properties:
+        university:
+          type: string
+        dormitory:
+          type: string
+        roomNumber:
+          type: integer
