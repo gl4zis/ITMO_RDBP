@@ -114,3 +114,18 @@ RoomResponse:
           type: array
           items:
             $ref: '#/UserResponse'
+
+UniversityResponse:
+  allOf:
+    - $ref: './models.yaml#/University'
+    - type: object
+      required:
+        - id
+        - dormitoryIds
+      properties:
+        id:
+          type: integer
+        dormitoryIds:
+          type: array
+          items:
+            type: integer

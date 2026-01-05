@@ -24,6 +24,8 @@ tags:
     description: 'Methods for pay by rooms for residents and get info about payments'
   - name: Room
     description: 'Methods for operations with room entities'
+  - name: University
+    description: 'Methods for operations with university entities'
 
 paths:
   /auth/register:
@@ -111,3 +113,8 @@ paths:
     $ref: './paths/room.yaml#/{id}'
   /room/for-resident:
     $ref: './paths/room.yaml#/for-resident'
+
+  /university:
+    $ref: './paths/university.yaml#/root'
+  /university/{id}:
+    $ref: './paths/university.yaml#/{id}'

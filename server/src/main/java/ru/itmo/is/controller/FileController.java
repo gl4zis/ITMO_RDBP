@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import ru.itmo.is.api.FileApi;
 import ru.itmo.is.dto.StringData;
-import ru.itmo.is.dto.response.FileResponse;
+import ru.itmo.is.storage.FileData;
 import ru.itmo.is.service.FileService;
 
 @Log4j2
@@ -21,7 +21,7 @@ public class FileController implements FileApi {
 
     @Override
     public ResponseEntity<Resource> downloadFile(String key) {
-        FileResponse file = fileService.get(key);
+        FileData file = fileService.get(key);
 
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
