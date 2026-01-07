@@ -91,7 +91,7 @@ public class UserService {
     public List<ToEvictionResidentResponse> getResidentsToEviction() {
         Map<String, ToEvictionResidentResponse> residentsToEviction = new HashMap<>();
 
-        userRepository.getByLoginIn(eventRepository.getResidentsToEvictionByDebt())
+        userRepository.getByLoginIn(eventService.getResidentsToEvictionByDebt())
                 .forEach(u -> residentsToEviction.putIfAbsent(u.getLogin(), userMapper.nonPaymentEvictResponse(u)));
 
         List<UserEvent> userLastInOutEvents = userRepository.getUsersByRoleIn(List.of(User.Role.RESIDENT)).stream()

@@ -19,6 +19,9 @@ public interface EventRepository extends CrudRepository<Event, Long> {
 
     List<Event> getByTypeInAndUsrLoginOrderByTimestampDesc(Collection<Event.Type> type, String resident);
 
-    @Query(value = "SELECT * FROM get_residents_to_eviction_by_debt()", nativeQuery = true)
-    List<String> getResidentsToEvictionByDebt();
+    @Query("SELECT e.usr.login, MAX(e.timestamp) " +
+           "FROM Event e " +
+           "WHERE e.type IN :types " +
+           "GROUP BY e.usr.login")
+    List<Object[]> getLastEventTimesForAllResidents(@Param("types") Collection<Event.Type> types);
 }

@@ -8,6 +8,7 @@ import ru.itmo.is.repository.RoomRepository;
 
 import java.time.LocalDateTime;
 import java.time.Period;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -30,12 +31,31 @@ public class EventService {
     }
 
     public Integer calculateResidentDebt(String login) {
-        LocalDateTime lastPaymentTime = getLastPaymentTime(login);
-        Period period = Period.between(lastPaymentTime.toLocalDate(), LocalDateTime.now().toLocalDate());
-        int debtForMonths = period.getYears() * 12 + period.getMonths();
-
-        int roomCost = roomRepository.getResidentRoomCost(login);
-        
-        return roomCost * debtForMonths;
+        return roomRepository.getResidentRoomCost(login) * calcDebtInMonths(getLastPaymentTime(login));
     }
+
+    public List<String> getResidentsToEvictionByDebt() {
+        List<String> residentsToEvict = new ArrayList<>();
+
+        eventRepository.getLastEventTimesForAllResidents(List.of(Event.Type.PAYMENT, Event.Type.OCCUPATION))
+                .stream()
+                .map(row -> new ResidentPaymentTime((String) row[0], (LocalDateTime) row[1]))
+                .forEach(paymentRecord -> {
+                    if (calcDebtInMonths(paymentRecord.timestamp()) > 6) {
+                        residentsToEvict.add(paymentRecord.login());
+                    }
+                });
+        
+        return residentsToEvict;
+    }
+
+    private int calcDebtInMonths(LocalDateTime lastPaymentTime) {
+        Period period = Period.between(lastPaymentTime.toLocalDate(), LocalDateTime.now().toLocalDate());
+        return period.getYears() * 12 + period.getMonths();
+    }
+
+    record ResidentPaymentTime(
+            String login,
+            LocalDateTime timestamp
+    ) { }
 }
