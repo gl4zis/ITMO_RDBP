@@ -31,6 +31,8 @@ class PaymentServiceTest {
     private UserService userService;
     @Mock
     private EventRepository eventRepository;
+    @Mock
+    private EventService eventService;
     @InjectMocks
     private PaymentService paymentService;
 
@@ -71,7 +73,7 @@ class PaymentServiceTest {
         when(eventRepository.getByTypeInAndUsrLoginOrderByTimestampDesc(
                 List.of(Event.Type.PAYMENT), "resident1")).thenReturn(new ArrayList<>());
         when(eventRepository.calculateResidentDebt("resident1")).thenReturn(500);
-        when(eventRepository.getLastPaymentTime("resident1")).thenReturn(null);
+        when(eventService.getLastPaymentTime("resident1")).thenReturn(null);
 
         PaymentResponse result = paymentService.getSelfPaymentInfo();
 
@@ -87,7 +89,7 @@ class PaymentServiceTest {
         when(eventRepository.getByTypeInAndUsrLoginOrderByTimestampDesc(
                 List.of(Event.Type.PAYMENT), "resident1")).thenReturn(List.of(paymentEvent));
         when(eventRepository.calculateResidentDebt("resident1")).thenReturn(500);
-        when(eventRepository.getLastPaymentTime("resident1")).thenReturn(LocalDateTime.now());
+        when(eventService.getLastPaymentTime("resident1")).thenReturn(LocalDateTime.now());
 
         PaymentResponse result = paymentService.getPaymentInfo("resident1");
 
@@ -134,7 +136,7 @@ class PaymentServiceTest {
         when(eventRepository.getByTypeInAndUsrLoginOrderByTimestampDesc(
                 List.of(Event.Type.PAYMENT), "resident1")).thenReturn(List.of(paymentEvent));
         when(eventRepository.calculateResidentDebt("resident1")).thenReturn(0);
-        when(eventRepository.getLastPaymentTime("resident1")).thenReturn(null);
+        when(eventService.getLastPaymentTime("resident1")).thenReturn(null);
 
         PaymentResponse result = paymentService.getPaymentInfo("resident1");
 
