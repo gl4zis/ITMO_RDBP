@@ -36,10 +36,12 @@ sourceSets {
     }
 }
 
-idea {
-    module {
-        testSourceDirs += project.sourceSets.testUnit.java.srcDirs + project.sourceSets.testIntegration.java.srcDirs
-        testSourceDirs += project.sourceSets.testUnit.resources.srcDirs + project.sourceSets.testIntegration.resources.srcDirs
+if (!System.getenv('CI')) {
+    idea {
+        module {
+            testSourceDirs += project.sourceSets.testUnit.java.srcDirs + project.sourceSets.testIntegration.java.srcDirs
+            testSourceDirs += project.sourceSets.testUnit.resources.srcDirs + project.sourceSets.testIntegration.resources.srcDirs
+        }
     }
 }
 
