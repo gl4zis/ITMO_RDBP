@@ -40,6 +40,7 @@ public class BidService {
     private final BidComparator bidComparator;
     private final BidMapper bidMapper;
     private final RoomMapper roomMapper;
+    private final RoomService roomService;
 
     public List<BidType> getSelfOpenedBidTypes() {
         return bidRepository.getOpenedBidTypes(userService.getCurrentUserOrThrow().getLogin())
@@ -307,13 +308,13 @@ public class BidService {
         List<Room> blockRoomIds = roomRepository
                 .getByTypeAndDormitoryId(Room.Type.BLOCK, bid.getDormitory().getId());
         Optional<Room> roomO = blockRoomIds.stream()
-                .filter(r -> roomRepository.isRoomFree(r.getId()))
+                .filter(roomService::isRoomFree)
                 .findFirst();
         if (roomO.isEmpty()) {
             List<Room> aisleRoomIds = roomRepository
                     .getByTypeAndDormitoryId(Room.Type.AISLE, bid.getDormitory().getId());
             roomO = aisleRoomIds.stream()
-                    .filter(r -> roomRepository.isRoomFree(r.getId()))
+                    .filter(roomService::isRoomFree)
                     .findFirst();
         }
         if (roomO.isEmpty()) {
@@ -349,20 +350,21 @@ public class BidService {
         Room room;
         if (bid.getRoomTo() != null) {
             room = bid.getRoomTo();
-            if (room.getResidents().size() == room.getCapacity()) {
+            if (!roomService.isRoomFree(room)) {
                 throw new BadRequestException("Room is not free");
             }
         } else {
             List<Room> rooms = roomRepository
                     .getByTypeAndDormitoryId(bid.getRoomPreferType(), resident.getRoom().getDormitory().getId());
             Optional<Room> roomO = rooms.stream()
-                    .filter(r -> roomRepository.isRoomFree(r.getId()))
+                    .filter(roomService::isRoomFree)
                     .findFirst();
             if (roomO.isEmpty()) {
                 throw new BadRequestException("No free room");
             }
             room = roomO.get();
         }
+
         resident.setRoom(room);
         residentRepository.save(resident);
 

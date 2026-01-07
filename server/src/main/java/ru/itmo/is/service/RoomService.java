@@ -71,4 +71,8 @@ public class RoomService {
         }
         roomRepository.delete(room);
     }
+
+    public boolean isRoomFree(Room room) {
+        return room.getResidents().size() < room.getCapacity();
+    }
 }

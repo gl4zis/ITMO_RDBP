@@ -12,8 +12,7 @@ import java.util.Optional;
 @Repository
 public interface RoomRepository extends CrudRepository<Room, Integer> {
     List<Room> getByTypeAndDormitoryId(Room.Type type, Integer dormId);
-    @Query(value = "SELECT NOT is_room_filled(:roomId)", nativeQuery = true)
-    boolean isRoomFree(@Param("roomId") Integer roomId);
+
     Optional<Room> getByDormitoryIdAndNumber(int dormitoryId, int number);
 
     List<Room> findAllByOrderById();
