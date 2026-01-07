@@ -28,6 +28,8 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  flyway:
+    enabled: false  # Disable Flyway for tests, using JPA create-drop instead
 
 file:
   storage:
