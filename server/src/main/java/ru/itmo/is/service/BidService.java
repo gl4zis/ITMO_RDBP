@@ -248,6 +248,12 @@ public class BidService {
         bidRepository.save(bid);
 
         updateBidFiles(req.getAttachmentKeys(), bid);
+
+        if (roomO.isPresent() && !roomService.isRoomFree(roomO.get())) {
+            bid.setStatus(Bid.Status.DENIED);
+            bid.setComment("Auto-denied: target room is full");
+            bidRepository.save(bid);
+        }
     }
 
     public void evictResident(String login) {
