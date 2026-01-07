@@ -70,7 +70,11 @@ dependencies {
     testIntegrationImplementation 'org.springframework.boot:spring-boot-starter-test:3.4.1'
     testIntegrationImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
     testIntegrationRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    testIntegrationImplementation 'com.h2database:h2:2.2.224'
+    
+    // TestContainers for integration tests
+    testIntegrationImplementation 'org.testcontainers:testcontainers:1.19.8'
+    testIntegrationImplementation 'org.testcontainers:junit-jupiter:1.19.8'
+    testIntegrationImplementation 'org.testcontainers:postgresql:1.19.8'
 
     configurations.all {
         exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
