@@ -1,0 +1,66 @@
+info/self:
+  get:
+    summary: 'Get all payment info about current user'
+    operationId: getSelfPaymentInfo
+    tags:
+      - Payment
+    responses:
+      200:
+        description: 'Payment info'
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/responses.yaml#/PaymentResponse'
+      401:
+        description: 'Unauthorized'
+      403:
+        description: 'Invalid role'
+
+info-other:
+  get:
+    summary: 'Get all payment info about other resident user'
+    operationId: getPaymentInfo
+    tags:
+      - Payment
+    parameters:
+      - name: login
+        in: query
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: 'Payment info'
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/responses.yaml#/PaymentResponse'
+      400:
+        description: 'Login was not set in query'
+      401:
+        description: 'Unauthorized'
+      403:
+        description: 'Invalid role'
+      404:
+        description: 'Resident not found by login'
+
+pay:
+  post:
+    summary: 'Pay for current user room'
+    operationId: pay
+    tags:
+      - Payment
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/requests.yaml#/PaymentRequest'
+    responses:
+      200:
+        description: 'Successfully payed'
+      400:
+        description: 'Try to pay invalid sum. It should be equal to your debt'
+      401:
+        description: 'Unauthorized'
+      403:
+        description: 'Invalid role'

@@ -1,0 +1,63 @@
+BidResponse:
+  type: object
+  required:
+    - number
+    - sender
+    - text
+    - type
+    - attachments
+    - status
+  properties:
+    number:
+      type: integer
+      format: int64
+    sender:
+      $ref: '../responses.yaml#/UserResponse'
+    manager:
+      $ref: '../responses.yaml#/UserResponse'
+    comment:
+      type: string
+    text:
+      type: string
+    type:
+      $ref: './models.yaml#/BidType'
+    attachments:
+      type: array
+      items:
+        type: object
+        required:
+          - filename
+          - downloadKey
+        properties:
+          filename:
+            type: string
+          downloadKey:
+            type: string
+    status:
+      $ref: './models.yaml#/BidStatus'
+  discriminator:
+    propertyName: type
+    mapping:
+      DEPARTURE: '#/DepartureResponse'
+      OCCUPATION: '#/OccupationResponse'
+      ROOM_CHANGE: '#/RoomChangeResponse'
+      EVICTION: '#/EvictionResponse'
+
+DepartureResponse:
+  allOf:
+    - $ref: '#/BidResponse'
+    - $ref: './models.yaml#/DepartureBid'
+
+OccupationResponse:
+  allOf:
+    - $ref: '#/BidResponse'
+    - $ref: './models.yaml#/OccupationBid'
+
+RoomChangeResponse:
+  allOf:
+    - $ref: '#/BidResponse'
+    - $ref: './models.yaml#/RoomChangeBid'
+
+EvictionResponse:
+  allOf:
+    - $ref: '#/BidResponse'

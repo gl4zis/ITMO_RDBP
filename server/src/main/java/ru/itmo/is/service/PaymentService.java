@@ -2,8 +2,9 @@ package ru.itmo.is.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.itmo.is.dto.request.PaymentRequest;
-import ru.itmo.is.dto.response.PaymentResponse;
+import ru.itmo.is.dto.PaymentHistoryRecord;
+import ru.itmo.is.dto.PaymentRequest;
+import ru.itmo.is.dto.PaymentResponse;
 import ru.itmo.is.entity.Event;
 import ru.itmo.is.entity.user.Resident;
 import ru.itmo.is.exception.BadRequestException;
@@ -27,7 +28,7 @@ public class PaymentService {
         Resident resident = userService.getResidentByLogin(login); // To make sure that this is resident
         List<Event> paymentEvents = eventRepository
                 .getByTypeInAndUsrLoginOrderByTimestampDesc(List.of(Event.Type.PAYMENT), resident.getLogin());
-        List<PaymentResponse.History> history = paymentEvents.stream().map(this::mapHistory).toList();
+        List<PaymentHistoryRecord> history = paymentEvents.stream().map(this::mapHistory).toList();
         Integer debt = eventRepository.calculateResidentDebt(resident.getLogin());
         LocalDateTime lastPaymentTime = eventRepository.getLastPaymentTime(resident.getLogin());
 
@@ -48,8 +49,8 @@ public class PaymentService {
         eventRepository.save(event);
     }
 
-    private PaymentResponse.History mapHistory(Event event) {
-        return new PaymentResponse.History(
+    private PaymentHistoryRecord mapHistory(Event event) {
+        return new PaymentHistoryRecord(
                 event.getTimestamp(),
                 event.getRoom().getDormitory().getAddress(),
                 event.getRoom().getNumber(),

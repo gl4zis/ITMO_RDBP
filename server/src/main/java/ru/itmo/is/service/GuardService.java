@@ -2,10 +2,11 @@ package ru.itmo.is.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.itmo.is.dto.response.GuardHistory;
+import ru.itmo.is.dto.GuardHistory;
 import ru.itmo.is.entity.Event;
 import ru.itmo.is.entity.user.User;
 import ru.itmo.is.exception.BadRequestException;
+import ru.itmo.is.mapper.EventMapper;
 import ru.itmo.is.repository.EventRepository;
 
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.Optional;
 public class GuardService {
     private final EventRepository eventRepository;
     private final UserService userService;
+    private final EventMapper eventMapper;
 
     public void entry(String login) {
         Optional<Event> lastInOutEventO = eventRepository.getLastInOutEvent(login);
@@ -40,7 +42,7 @@ public class GuardService {
         List<Event> events = eventRepository.getByTypeInAndUsrLoginOrderByTimestampDesc(
                 List.of(Event.Type.IN, Event.Type.OUT), login
         );
-        return events.stream().map(this::mapGuardEvent).toList();
+        return events.stream().map(eventMapper::mapGuardEvent).toList();
     }
 
     public List<GuardHistory> getSelfHistory() {
@@ -53,12 +55,5 @@ public class GuardService {
         event.setUsr(userService.getResidentByLogin(login));
         event.setType(type);
         eventRepository.save(event);
-    }
-
-    private GuardHistory mapGuardEvent(Event event) {
-        return GuardHistory.builder()
-                .type(GuardHistory.Type.fromEventType(event.getType()))
-                .timestamp(event.getTimestamp())
-                .build();
     }
 }

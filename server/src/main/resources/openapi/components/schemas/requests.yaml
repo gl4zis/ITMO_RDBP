@@ -1,0 +1,76 @@
+FileRequest:
+  type: object
+  required:
+    - file
+  properties:
+    file:
+      type: string
+      format: binary
+
+LoginRequest:
+  type: object
+  required:
+    - login
+    - password
+  properties:
+    login:
+      type: string
+    password:
+      type: string
+
+RegisterRequest:
+  type: object
+  allOf:
+    - $ref: '#/LoginRequest'
+    - type: object
+      required:
+        - name
+        - surname
+        - role
+      properties:
+        name:
+          type: string
+        surname:
+          type: string
+        role:
+          $ref: './models.yaml#/UserRole'
+
+PasswordChangeRequest:
+  type: object
+  required:
+    - oldPassword
+    - newPassword
+  properties:
+    oldPassword:
+      type: string
+    newPassword:
+      type: string
+
+DormitoryRequest:
+  type: object
+  required:
+    - address
+    - universityIds
+  properties:
+    address:
+      type: string
+    universityIds:
+      type: array
+      items:
+        type: integer
+
+PaymentRequest:
+  type: object
+  required:
+    - sum
+  properties:
+    sum:
+      type: integer
+
+RoomRequest:
+  allOf:
+    - $ref: './models.yaml#/Room'
+
+UniversityRequest:
+  allOf:
+    - $ref: './models.yaml#/University'

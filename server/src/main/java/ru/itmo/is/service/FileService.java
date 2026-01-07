@@ -4,7 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import ru.itmo.is.dto.response.FileResponse;
+import ru.itmo.is.storage.FileData;
 import ru.itmo.is.entity.bid.BidFile;
 import ru.itmo.is.exception.NotFoundException;
 import ru.itmo.is.repository.BidFileRepository;
@@ -27,7 +27,7 @@ public class FileService {
         return record.getKey();
     }
 
-    public FileResponse get(String key) {
+    public FileData get(String key) {
         return bidFileRepository.findById(key)
                 .map(FileRecord::new)
                 .map(fileStorage::get)

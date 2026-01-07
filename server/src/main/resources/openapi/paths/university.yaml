@@ -1,0 +1,107 @@
+root:
+  get:
+    summary: 'Get all exists universities'
+    operationId: getAllUniversities
+    tags:
+      - University
+    responses:
+      200:
+        description: 'List of university entities'
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components/schemas/responses.yaml#/UniversityResponse'
+  post:
+    summary: 'Create new university entity'
+    operationId: addUniversity
+    tags:
+      - University
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/requests.yaml#/UniversityRequest'
+    responses:
+      200:
+        description: 'University added successfully'
+      400:
+        description: 'Invalid body'
+      401:
+        description: 'Unauthorized'
+      403:
+        description: 'Invalid role'
+
+'{id}':
+  get:
+    summary: 'Get university by id'
+    operationId: getUniversity
+    tags:
+      - University
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      200:
+        description: 'University entity'
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/responses.yaml#/UniversityResponse'
+      400:
+        description: 'Invalid id send in query'
+      404:
+        description: 'University not found by id'
+  put:
+    summary: 'Update university by id'
+    operationId: updateUniversity
+    tags:
+      - University
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/requests.yaml#/UniversityRequest'
+    responses:
+      200:
+        description: 'University updated successfully'
+      400:
+        description: 'Invalid id send in query or invalid body'
+      401:
+        description: 'Unauthorized'
+      403:
+        description: 'Invalid role'
+      404:
+        description: 'University not found by id'
+  delete:
+    summary: 'Delete university by id'
+    operationId: deleteUniversity
+    tags:
+      - University
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      200:
+        description: 'University deleted successfully'
+      400:
+        description: 'Invalid id send in query'
+      401:
+        description: 'Unauthorized'
+      403:
+        description: 'Invalid role'
+      404:
+        description: 'University not found by id'

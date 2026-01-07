@@ -2,15 +2,17 @@ package ru.itmo.is.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.itmo.is.dto.response.EvictionResponse;
-import ru.itmo.is.dto.response.user.ResidentResponse;
-import ru.itmo.is.dto.response.user.UserResponse;
+import ru.itmo.is.dto.ResidentResponse;
+import ru.itmo.is.dto.ToEvictionResidentResponse;
+import ru.itmo.is.dto.UserResponse;
 import ru.itmo.is.entity.Event;
 import ru.itmo.is.entity.user.Resident;
 import ru.itmo.is.entity.user.User;
 import ru.itmo.is.exception.BadRequestException;
 import ru.itmo.is.exception.ForbiddenException;
 import ru.itmo.is.exception.NotFoundException;
+import ru.itmo.is.exception.UnauthorizedException;
+import ru.itmo.is.mapper.UserMapper;
 import ru.itmo.is.repository.EventRepository;
 import ru.itmo.is.repository.ResidentRepository;
 import ru.itmo.is.repository.UserRepository;
@@ -18,7 +20,10 @@ import ru.itmo.is.security.SecurityContext;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +32,7 @@ public class UserService {
     private final EventRepository eventRepository;
     private final SecurityContext securityContext;
     private final ResidentRepository residentRepository;
+    private final UserMapper userMapper;
 
     public Resident getResidentByLogin(String login) {
         return residentRepository.findById(login)
@@ -44,14 +50,14 @@ public class UserService {
     public User getCurrentUserOrThrow() {
         String login = securityContext.getUsername();
         if (login == null) {
-            throw new ForbiddenException("You are not logged in");
+            throw new UnauthorizedException("You are not logged in");
         }
-        return userRepository.findById(login).orElseThrow(() -> new ForbiddenException("You are not logged in"));
+        return userRepository.findById(login).orElseThrow(() -> new UnauthorizedException("You are not logged in"));
     }
 
     public List<UserResponse> getStaff() {
         return userRepository.getUsersByRoleIn(List.of(User.Role.GUARD, User.Role.MANAGER))
-                .stream().map(UserResponse::new).toList();
+                .stream().map(userMapper::mapUserResponse).toList();
     }
 
     public List<ResidentResponse> getResidents() {
@@ -65,11 +71,7 @@ public class UserService {
                             .map(Event::getTimestamp)
                             .orElse(null);
 
-                    return new ResidentResponse(
-                            resident,
-                            debt,
-                            lastCameOut
-                    );
+                    return userMapper.toResidentResponse(resident, debt, lastCameOut);
                 })
                 .toList();
     }
@@ -85,12 +87,11 @@ public class UserService {
         userRepository.delete(userO.get());
     }
 
-    public Set<EvictionResponse> getResidentsToEviction() {
-        Set<EvictionResponse> response = new HashSet<>();
+    public List<ToEvictionResidentResponse> getResidentsToEviction() {
+        Map<String, ToEvictionResidentResponse> residentsToEviction = new HashMap<>();
 
-        List<String> toEvictionByDebtLogins = eventRepository.getResidentsToEvictionByDebt();
-        List<User> toEvictionByDebt = userRepository.getByLoginIn(toEvictionByDebtLogins);
-        toEvictionByDebt.forEach(u -> response.add(EvictionResponse.nonPayment(u)));
+        userRepository.getByLoginIn(eventRepository.getResidentsToEvictionByDebt())
+                .forEach(u -> residentsToEviction.putIfAbsent(u.getLogin(), userMapper.nonPaymentEvictResponse(u)));
 
         List<UserEvent> userLastInOutEvents = userRepository.getUsersByRoleIn(List.of(User.Role.RESIDENT)).stream()
                 .map(u -> new UserOptionalEvent(u, eventRepository.getLastInOutEvent(u.getLogin())))
@@ -98,21 +99,21 @@ public class UserService {
                 .map(uoe -> new UserEvent(uoe.user(), uoe.event().get()))
                 .toList();
 
-        List<User> toEvictionByResidence = userLastInOutEvents.stream()
+        userLastInOutEvents.stream()
                 .filter(ue -> ue.event().getType().equals(Event.Type.OUT))
                 .filter(ue -> ue.event().getTimestamp().isBefore(LocalDateTime.now().minusDays(7)))
                 .map(UserEvent::user)
-                .toList();
-        toEvictionByResidence.forEach(u -> response.add(EvictionResponse.nonResidence(u)));
+                .map(userMapper::nonResidenceEvictResponse)
+                .forEach(ev -> residentsToEviction.putIfAbsent(ev.getResident().getLogin(), ev));
 
-        List<User> toEvictionByRules = userLastInOutEvents.stream()
+        userLastInOutEvents.stream()
                 .map(ue -> new UserTime(ue.user(), ue.event().getTimestamp().toLocalTime()))
                 .filter(ut -> !ut.time().isBefore(LocalTime.MIDNIGHT) && ut.time.isBefore(LocalTime.of(6, 0)))
                 .map(UserTime::user)
-                .toList();
-        toEvictionByRules.forEach(u -> response.add(EvictionResponse.ruleViolation(u)));
+                .map(userMapper::ruleViolationEvictResponse)
+                .forEach(ev -> residentsToEviction.putIfAbsent(ev.getResident().getLogin(), ev));
 
-        return response;
+        return residentsToEviction.values().stream().toList();
     }
 
     private record UserOptionalEvent(User user, Optional<Event> event) {}

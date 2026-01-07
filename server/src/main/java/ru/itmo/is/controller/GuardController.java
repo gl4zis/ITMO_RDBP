@@ -1,8 +1,10 @@
 package ru.itmo.is.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
-import ru.itmo.is.dto.response.GuardHistory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RestController;
+import ru.itmo.is.api.GuardApi;
+import ru.itmo.is.dto.GuardHistory;
 import ru.itmo.is.entity.user.User;
 import ru.itmo.is.security.RolesAllowed;
 import ru.itmo.is.service.GuardService;
@@ -10,32 +12,33 @@ import ru.itmo.is.service.GuardService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/guard")
 @RequiredArgsConstructor
-public class GuardController {
+public class GuardController implements GuardApi {
     private final GuardService guardService;
 
+    @Override
     @RolesAllowed(User.Role.GUARD)
-    @PostMapping("/entry")
-    public void entry(@RequestParam("login") String login) {
+    public ResponseEntity<Void> entry(String login) {
         guardService.entry(login);
+        return ResponseEntity.ok().build();
     }
 
+    @Override
     @RolesAllowed(User.Role.GUARD)
-    @PostMapping("/exit")
-    public void exit(@RequestParam("login") String login) {
+    public ResponseEntity<Void> exit(String login) {
         guardService.exit(login);
+        return ResponseEntity.ok().build();
     }
 
+    @Override
     @RolesAllowed(User.Role.MANAGER)
-    @GetMapping("/history")
-    public List<GuardHistory> getHistory(@RequestParam("login") String login) {
-        return guardService.getHistory(login);
+    public ResponseEntity<List<GuardHistory>> getHistory(String login) {
+        return ResponseEntity.ok(guardService.getHistory(login));
     }
 
+    @Override
     @RolesAllowed(User.Role.RESIDENT)
-    @GetMapping("/history/self")
-    public List<GuardHistory> getSelfHistory() {
-        return guardService.getSelfHistory();
+    public ResponseEntity<List<GuardHistory>> getSelfHistory() {
+        return ResponseEntity.ok(guardService.getSelfHistory());
     }
 }

@@ -1,17 +1,9 @@
 package ru.itmo.is.service;
 
-import jakarta.annotation.Nullable;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.itmo.is.dto.request.bid.BidRequest;
-import ru.itmo.is.dto.request.bid.DepartureRequest;
-import ru.itmo.is.dto.request.bid.OccupationRequest;
-import ru.itmo.is.dto.request.bid.RoomChangeRequest;
-import ru.itmo.is.dto.response.bid.BidResponse;
-import ru.itmo.is.dto.response.bid.DepartureBidResponse;
-import ru.itmo.is.dto.response.bid.OccupationBidResponse;
-import ru.itmo.is.dto.response.bid.RoomChangeResponse;
+import ru.itmo.is.dto.*;
 import ru.itmo.is.entity.Event;
 import ru.itmo.is.entity.bid.Bid;
 import ru.itmo.is.entity.bid.DepartureBid;
@@ -26,6 +18,8 @@ import ru.itmo.is.entity.user.User;
 import ru.itmo.is.exception.BadRequestException;
 import ru.itmo.is.exception.ForbiddenException;
 import ru.itmo.is.exception.NotFoundException;
+import ru.itmo.is.mapper.BidMapper;
+import ru.itmo.is.mapper.RoomMapper;
 import ru.itmo.is.repository.*;
 
 import java.util.List;
@@ -44,33 +38,38 @@ public class BidService {
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
     private final BidComparator bidComparator;
+    private final BidMapper bidMapper;
+    private final RoomMapper roomMapper;
 
-    public List<Bid.Type> getSelfOpenedBidTypes() {
-        return bidRepository.getOpenedBidTypes(userService.getCurrentUserOrThrow().getLogin());
+    public List<BidType> getSelfOpenedBidTypes() {
+        return bidRepository.getOpenedBidTypes(userService.getCurrentUserOrThrow().getLogin())
+                .stream()
+                .map(bidMapper::mapBidTypeToDto)
+                .toList();
     }
 
     public List<BidResponse> getInProcessBids() {
         List<Bid> bids = bidRepository.getByStatusIn(List.of(Bid.Status.IN_PROCESS));
         return bids.stream()
                 .sorted(bidComparator::compare)
-                .map(this::mapBid)
+                .map(bidMapper::mapBidToDto)
                 .toList();
     }
 
     public List<BidResponse> getPendingBids() {
         List<Bid> bids = bidRepository.getByStatusIn(List.of(Bid.Status.PENDING_REVISION));
-        return bids.stream().map(this::mapBid).toList();
+        return bids.stream().map(bidMapper::mapBidToDto).toList();
     }
 
     public List<BidResponse> getArchivedBids() {
         List<Bid> bids = bidRepository.getByStatusIn(List.of(Bid.Status.ACCEPTED, Bid.Status.DENIED));
-        return bids.stream().map(this::mapBid).toList();
+        return bids.stream().map(bidMapper::mapBidToDto).toList();
     }
 
     public List<BidResponse> getSelfBids() {
         User sender = userService.getCurrentUserOrThrow();
         List<Bid> bids = bidRepository.getBySenderLoginOrderByIdDesc(sender.getLogin());
-        return bids.stream().map(this::mapBid).toList();
+        return bids.stream().map(bidMapper::mapBidToDto).toList();
     }
 
     public BidResponse getBid(long id) {
@@ -81,7 +80,7 @@ public class BidService {
 
         User user = userService.getCurrentUserOrThrow();
         if (user.getRole() == User.Role.MANAGER || bidO.get().getSender().equals(user)) {
-            return mapBid(bidO.get());
+            return bidMapper.mapBidToDto(bidO.get());
         }
         throw new ForbiddenException("You are not allowed to get bid by this user");
     }
@@ -89,7 +88,7 @@ public class BidService {
     public void denyBid(Long id, String comment) {
         Bid bid = bidRepository.findById(id)
                 .filter(b -> b.getStatus() == Bid.Status.IN_PROCESS)
-                .orElseThrow(() -> new BadRequestException("No such bid"));
+                .orElseThrow(() -> new NotFoundException("No such bid"));
         bid.setStatus(Bid.Status.DENIED);
         bid.setManager(userService.getCurrentUserOrThrow());
         bid.setComment(comment);
@@ -100,7 +99,7 @@ public class BidService {
     public void acceptBid(Long id) {
         Bid bid = bidRepository.findById(id)
                 .filter(b -> b.getStatus() == Bid.Status.IN_PROCESS)
-                .orElseThrow(() -> new BadRequestException("No such bid"));
+                .orElseThrow(() -> new NotFoundException("No such bid"));
 
         bid.setStatus(Bid.Status.ACCEPTED);
         bid.setManager(userService.getCurrentUserOrThrow());
@@ -113,10 +112,11 @@ public class BidService {
         bidRepository.save(bid);
     }
 
+    @Transactional
     public void pendBid(long id, String comment) {
         Bid bid = bidRepository.findById(id)
                 .filter(b -> b.getStatus() == Bid.Status.IN_PROCESS)
-                .orElseThrow(() -> new BadRequestException("No such bid"));
+                .orElseThrow(() -> new NotFoundException("No such bid"));
         bid.setComment(comment);
         bid.setManager(userService.getCurrentUserOrThrow());
         bid.setStatus(Bid.Status.PENDING_REVISION);
@@ -129,18 +129,21 @@ public class BidService {
         notificationRepository.save(notification);
     }
 
-    public void saveOccupationBid(@Nullable Long bidId, OccupationRequest req) {
-        var bid = new OccupationBid();
-        if (bidId == null) {
-            checkUserBidIsNotExists(Bid.Type.OCCUPATION);
-        } else {
-            checkEditableBid(bidId, Bid.Type.OCCUPATION);
-            bid = bidRepository.findById(bidId)
-                    .filter(occBid -> occBid.getType() == Bid.Type.OCCUPATION)
-                    .map(occBid -> (OccupationBid) occBid)
-                    .orElseThrow(() -> new BadRequestException("Occupation bid with such id doesn't exist"));
-        }
+    public void createOccupationBid(OccupationRequest req) {
+        checkUserBidIsNotExists(Bid.Type.OCCUPATION);
+        saveOccupationBid(new OccupationBid(), req);
+    }
 
+    public void updateOccupationBid(long bidId, OccupationRequest req) {
+        checkEditableBid(bidId, Bid.Type.OCCUPATION);
+        var bid = bidRepository.findById(bidId)
+                .filter(occBid -> occBid.getType() == Bid.Type.OCCUPATION)
+                .map(occBid -> (OccupationBid) occBid)
+                .orElseThrow(() -> new BadRequestException("Occupation bid with such id doesn't exist"));
+        saveOccupationBid(bid, req);
+    }
+
+    private void saveOccupationBid(OccupationBid bid, OccupationRequest req) {
         Optional<University> universityO = universityRepository.findById(req.getUniversityId());
         if (universityO.isEmpty()) {
             throw new BadRequestException("No such university");
@@ -162,17 +165,20 @@ public class BidService {
         updateBidFiles(req.getAttachmentKeys(), bid);
     }
 
-    public void saveEvictionBid(@Nullable Long bidId, BidRequest req) {
-        var bid = new Bid();
-        if (bidId == null) {
-            checkUserBidIsNotExists(Bid.Type.EVICTION);
-        } else {
-            checkEditableBid(bidId, Bid.Type.EVICTION);
-            bid = bidRepository.findById(bidId)
-                    .filter(occBid -> occBid.getType() == Bid.Type.EVICTION)
-                    .orElseThrow(() -> new BadRequestException("Eviction bid with such id doesn't exist"));
-        }
+    public void createEvictionBid(EvictionRequest req) {
+        checkUserBidIsNotExists(Bid.Type.EVICTION);
+        saveEvictionBid(new Bid(), req);
+    }
 
+    public void updateEvictionBid(long bidId, EvictionRequest req) {
+        checkEditableBid(bidId, Bid.Type.EVICTION);
+        var bid = bidRepository.findById(bidId)
+                .filter(eBid -> eBid.getType() == Bid.Type.EVICTION)
+                .orElseThrow(() -> new BadRequestException("Eviction bid with such id doesn't exist"));
+        saveEvictionBid(bid, req);
+    }
+
+    private void saveEvictionBid(Bid bid, EvictionRequest req) {
         bid.setStatus(Bid.Status.IN_PROCESS);
         bid.setFiles(bidFileRepository.getByKeyIn(req.getAttachmentKeys()));
         bid.setSender(userService.getCurrentUserOrThrow());
@@ -183,18 +189,21 @@ public class BidService {
         updateBidFiles(req.getAttachmentKeys(), bid);
     }
 
-    public void saveDepartureBid(@Nullable Long bidId, DepartureRequest req) {
-        var bid = new DepartureBid();
-        if (bidId == null) {
-            checkUserBidIsNotExists(Bid.Type.DEPARTURE);
-        } else {
-            checkEditableBid(bidId, Bid.Type.DEPARTURE);
-            bid = bidRepository.findById(bidId)
-                    .filter(occBid -> occBid.getType() == Bid.Type.DEPARTURE)
-                    .map(occBid -> (DepartureBid) occBid)
-                    .orElseThrow(() -> new BadRequestException("Departure bid with such id doesn't exist"));
-        }
+    public void createDepartureBid(DepartureRequest req) {
+        checkUserBidIsNotExists(Bid.Type.DEPARTURE);
+        saveDepartureBid(new DepartureBid(), req);
+    }
 
+    public void updateDepartureBid(long bidId, DepartureRequest req) {
+        checkEditableBid(bidId, Bid.Type.DEPARTURE);
+        var bid = bidRepository.findById(bidId)
+                .filter(occBid -> occBid.getType() == Bid.Type.DEPARTURE)
+                .map(dBid -> (DepartureBid) dBid)
+                .orElseThrow(() -> new BadRequestException("Departure bid with such id doesn't exist"));
+        saveDepartureBid(bid, req);
+    }
+
+    private void saveDepartureBid(DepartureBid bid, DepartureRequest req) {
         bid.setStatus(Bid.Status.IN_PROCESS);
         bid.setFiles(bidFileRepository.getByKeyIn(req.getAttachmentKeys()));
         bid.setSender(userService.getCurrentUserOrThrow());
@@ -206,18 +215,21 @@ public class BidService {
         updateBidFiles(req.getAttachmentKeys(), bid);
     }
 
-    public void saveRoomChangeBid(@Nullable Long bidId, RoomChangeRequest req) {
-        var bid = new RoomChangeBid();
-        if (bidId == null) {
-            checkUserBidIsNotExists(Bid.Type.ROOM_CHANGE);
-        } else {
-            checkEditableBid(bidId, Bid.Type.ROOM_CHANGE);
-            bid = bidRepository.findById(bidId)
-                    .filter(occBid -> occBid.getType() == Bid.Type.ROOM_CHANGE)
-                    .map(occBid -> (RoomChangeBid) occBid)
-                    .orElseThrow(() -> new BadRequestException("Room change bid with such id doesn't exist"));
-        }
+    public void createRoomChangeBid(RoomChangeRequest req) {
+        checkUserBidIsNotExists(Bid.Type.ROOM_CHANGE);
+        saveRoomChangeBid(new RoomChangeBid(), req);
+    }
 
+    public void updateRoomChangeBid(long bidId, RoomChangeRequest req) {
+        checkEditableBid(bidId, Bid.Type.ROOM_CHANGE);
+        var bid = bidRepository.findById(bidId)
+                .filter(occBid -> occBid.getType() == Bid.Type.ROOM_CHANGE)
+                .map(rcBid -> (RoomChangeBid) rcBid)
+                .orElseThrow(() -> new BadRequestException("Room change bid with such id doesn't exist"));
+        saveRoomChangeBid(bid, req);
+    }
+
+    private void saveRoomChangeBid(RoomChangeBid bid, RoomChangeRequest req) {
         Optional<Room> roomO = Optional.empty();
         if (req.getRoomToId() != null) {
             roomO = roomRepository.findById(req.getRoomToId());
@@ -231,7 +243,7 @@ public class BidService {
         bid.setSender(userService.getCurrentUserOrThrow());
         bid.setText(req.getText());
         bid.setRoomTo(roomO.orElse(null));
-        bid.setRoomPreferType(req.getRoomPreferType());
+        bid.setRoomPreferType(roomMapper.mapRoomTypeToModel(req.getRoomPreferType()));
         bidRepository.save(bid);
 
         updateBidFiles(req.getAttachmentKeys(), bid);
@@ -359,14 +371,5 @@ public class BidService {
         event.setRoom(room);
         event.setUsr(resident);
         eventRepository.save(event);
-    }
-
-    private BidResponse mapBid(Bid bid) {
-        return switch (bid.getType()) {
-            case DEPARTURE -> new DepartureBidResponse((DepartureBid) bid);
-            case OCCUPATION -> new OccupationBidResponse((OccupationBid) bid);
-            case ROOM_CHANGE -> new RoomChangeResponse((RoomChangeBid) bid);
-            default -> new BidResponse(bid);
-        };
     }
 }

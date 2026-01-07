@@ -2,7 +2,7 @@ package ru.itmo.is.validation;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-import ru.itmo.is.dto.request.bid.DepartureRequest;
+import ru.itmo.is.dto.DepartureRequest;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
