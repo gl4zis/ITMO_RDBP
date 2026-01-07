@@ -31,7 +31,8 @@ public class RoomService {
 
     public List<RoomResponse> getForResident() {
         Resident resident = userService.getCurrentResidentOrThrow();
-        return roomRepository.getAvailableInDormitory(resident.getRoom().getDormitory().getId()).stream()
+        return roomRepository.getInDormitory(resident.getRoom().getDormitory().getId()).stream()
+                .filter(this::isRoomFree)
                 .filter(r -> !Objects.equals(r.getId(), resident.getRoom().getId()))
                 .map(roomMapper::roomToDto)
                 .toList();
