@@ -254,18 +254,17 @@ public class BidService {
         bid.setText(req.getText());
         bid.setRoomTo(roomO.orElse(null));
         bid.setRoomPreferType(roomMapper.mapRoomTypeToModel(req.getRoomPreferType()));
-        bidRepository.save(bid);
-
-        updateBidFiles(req.getAttachmentKeys(), bid);
 
         if (roomO.isPresent() && !roomService.isRoomFree(roomO.get())) {
             bid.setStatus(Bid.Status.DENIED);
             bid.setComment("Auto-denied: target room is full");
-            bidRepository.save(bid);
             notificationService.notifySenderAboutBidStatus(bid);
         } else {
             notificationService.notifyManagersAboutNewBid(bid);
         }
+
+        bidRepository.save(bid);
+        updateBidFiles(req.getAttachmentKeys(), bid);
     }
 
     public void evictResident(String login) {

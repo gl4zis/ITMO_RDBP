@@ -60,6 +60,8 @@ class BidServiceTest {
     private RoomMapper roomMapper;
     @Mock
     private RoomService roomService;
+    @Mock
+    private NotificationService notificationService;
     @InjectMocks
     private BidService bidService;
 

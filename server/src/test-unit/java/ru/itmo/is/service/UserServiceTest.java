@@ -336,7 +336,7 @@ class UserServiceTest {
 
         Event outEvent = new Event();
         outEvent.setType(Event.Type.OUT);
-        outEvent.setTimestamp(java.time.LocalDateTime.now().minusDays(5)); // Less than 7 days
+        outEvent.setTimestamp(LocalDateTime.of(LocalDate.now().minusDays(5), LocalTime.of(10, 0))); // Less than 7 days
 
         when(eventService.getResidentsToEvictionByDebt()).thenReturn(List.of());
         when(userRepository.getUsersByRoleIn(List.of(User.Role.RESIDENT))).thenReturn(List.of(resident1));
@@ -356,8 +356,7 @@ class UserServiceTest {
 
         Event inEvent = new Event();
         inEvent.setType(Event.Type.IN);
-        inEvent.setTimestamp(java.time.LocalDateTime.of(
-                java.time.LocalDate.now(), java.time.LocalTime.of(10, 0))); // Normal time
+        inEvent.setTimestamp(LocalDateTime.of(LocalDate.now(), LocalTime.of(10, 0))); // Normal time
 
         when(eventService.getResidentsToEvictionByDebt()).thenReturn(List.of());
         when(userRepository.getUsersByRoleIn(List.of(User.Role.RESIDENT))).thenReturn(List.of(resident1));
