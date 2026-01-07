@@ -1,8 +1,8 @@
 package ru.itmo.is.service;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.itmo.is.dto.*;
 import ru.itmo.is.entity.Event;
 import ru.itmo.is.entity.bid.Bid;
@@ -99,7 +99,6 @@ public class BidService {
         notificationService.notifySenderAboutBidStatus(bid);
     }
 
-    @Transactional
     public void acceptBid(Long id) {
         Bid bid = bidRepository.findById(id)
                 .filter(b -> b.getStatus() == Bid.Status.IN_PROCESS)
