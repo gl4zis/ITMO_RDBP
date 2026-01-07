@@ -20,4 +20,7 @@ public interface RoomRepository extends CrudRepository<Room, Integer> {
 
     @Query(value = "SELECT * FROM room r WHERE r.dormitory_id = :dormId AND NOT is_room_filled(r.id)", nativeQuery = true)
     List<Room> getAvailableInDormitory(@Param("dormId") int dormId);
+
+    @Query("SELECT r.room.cost FROM Resident r WHERE r.login = :resident")
+    int getResidentRoomCost(@Param("resident") String resident);
 }

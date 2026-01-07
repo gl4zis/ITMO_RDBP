@@ -47,6 +47,8 @@ class UserServiceTest {
     private SecurityContext securityContext;
     @Mock
     private ResidentRepository residentRepository;
+    @Mock
+    private EventService eventService;
     private UserService userService;
 
     private User user;
@@ -70,7 +72,8 @@ class UserServiceTest {
                 eventRepository,
                 securityContext,
                 residentRepository,
-                userMapper
+                userMapper,
+                eventService
         );
     }
 
@@ -193,7 +196,7 @@ class UserServiceTest {
         
         when(userRepository.getUsersByRoleIn(List.of(User.Role.RESIDENT)))
                 .thenReturn(List.of(resident));
-        when(eventRepository.calculateResidentDebt("testuser")).thenReturn(0);
+        when(eventService.calculateResidentDebt("testuser")).thenReturn(0);
         when(eventRepository.getLastInOutEvent("testuser")).thenReturn(Optional.empty());
 
         List<ResidentResponse> result = userService.getResidents();

@@ -72,7 +72,7 @@ class PaymentServiceTest {
         when(userService.getResidentByLogin("resident1")).thenReturn(resident);
         when(eventRepository.getByTypeInAndUsrLoginOrderByTimestampDesc(
                 List.of(Event.Type.PAYMENT), "resident1")).thenReturn(new ArrayList<>());
-        when(eventRepository.calculateResidentDebt("resident1")).thenReturn(500);
+        when(eventService.calculateResidentDebt("resident1")).thenReturn(500);
         when(eventService.getLastPaymentTime("resident1")).thenReturn(null);
 
         PaymentResponse result = paymentService.getSelfPaymentInfo();
@@ -88,7 +88,7 @@ class PaymentServiceTest {
         when(userService.getResidentByLogin("resident1")).thenReturn(resident);
         when(eventRepository.getByTypeInAndUsrLoginOrderByTimestampDesc(
                 List.of(Event.Type.PAYMENT), "resident1")).thenReturn(List.of(paymentEvent));
-        when(eventRepository.calculateResidentDebt("resident1")).thenReturn(500);
+        when(eventService.calculateResidentDebt("resident1")).thenReturn(500);
         when(eventService.getLastPaymentTime("resident1")).thenReturn(LocalDateTime.now());
 
         PaymentResponse result = paymentService.getPaymentInfo("resident1");
@@ -104,7 +104,7 @@ class PaymentServiceTest {
     void testCurrentUserPay_WithCorrectDebt_ShouldSaveEvent() {
         Integer debt = 500;
         when(userService.getCurrentResidentOrThrow()).thenReturn(resident);
-        when(eventRepository.calculateResidentDebt("resident1")).thenReturn(debt);
+        when(eventService.calculateResidentDebt("resident1")).thenReturn(debt);
         paymentRequest.setSum(debt); // Use same Integer instance
 
         paymentService.currentUserPay(paymentRequest);
@@ -120,7 +120,7 @@ class PaymentServiceTest {
     @Test
     void testCurrentUserPay_WithIncorrectDebt_ShouldThrowBadRequestException() {
         when(userService.getCurrentResidentOrThrow()).thenReturn(resident);
-        when(eventRepository.calculateResidentDebt("resident1")).thenReturn(500);
+        when(eventService.calculateResidentDebt("resident1")).thenReturn(500);
         paymentRequest.setSum(300);
 
         assertThrows(BadRequestException.class, () -> {
@@ -135,7 +135,7 @@ class PaymentServiceTest {
         when(userService.getResidentByLogin("resident1")).thenReturn(resident);
         when(eventRepository.getByTypeInAndUsrLoginOrderByTimestampDesc(
                 List.of(Event.Type.PAYMENT), "resident1")).thenReturn(List.of(paymentEvent));
-        when(eventRepository.calculateResidentDebt("resident1")).thenReturn(0);
+        when(eventService.calculateResidentDebt("resident1")).thenReturn(0);
         when(eventService.getLastPaymentTime("resident1")).thenReturn(null);
 
         PaymentResponse result = paymentService.getPaymentInfo("resident1");

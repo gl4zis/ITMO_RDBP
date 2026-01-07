@@ -33,6 +33,7 @@ public class UserService {
     private final SecurityContext securityContext;
     private final ResidentRepository residentRepository;
     private final UserMapper userMapper;
+    private final EventService eventService;
 
     public Resident getResidentByLogin(String login) {
         return residentRepository.findById(login)
@@ -65,7 +66,7 @@ public class UserService {
         return users.stream()
                 .map(user -> (Resident) user)
                 .map(resident -> {
-                    int debt = eventRepository.calculateResidentDebt(resident.getLogin());
+                    int debt = eventService.calculateResidentDebt(resident.getLogin());
 
                     LocalDateTime lastCameOut = eventRepository.getLastInOutEvent(resident.getLogin())
                             .map(Event::getTimestamp)
