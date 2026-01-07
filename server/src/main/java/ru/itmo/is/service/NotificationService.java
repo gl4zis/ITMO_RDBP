@@ -66,6 +66,25 @@ public class NotificationService {
         }
     }
 
+    public void notifySenderAboutBidStatus(Bid bid) {
+        String statusText = switch (bid.getStatus()) {
+            case ACCEPTED -> "одобрена :)";
+            case DENIED -> "отклонена ;(";
+            default -> null;
+        };
+
+        if (statusText == null) {
+            return;
+        }
+
+        Notification notification = new Notification();
+        notification.setBid(bid);
+        notification.setReceiver(bid.getSender());
+        notification.setText(String.format("Ваша заявка %s", statusText));
+        notification.setStatus(Notification.Status.CREATED);
+        notificationRepository.save(notification);
+    }
+
     private NotificationResponse mapNotification(Notification entity) {
         return new NotificationResponse(entity.getId(), entity.getBid().getId(), entity.getText());
     }

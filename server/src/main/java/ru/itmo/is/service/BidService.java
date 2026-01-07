@@ -87,6 +87,7 @@ public class BidService {
         throw new ForbiddenException("You are not allowed to get bid by this user");
     }
 
+    @Transactional
     public void denyBid(Long id, String comment) {
         Bid bid = bidRepository.findById(id)
                 .filter(b -> b.getStatus() == Bid.Status.IN_PROCESS)
@@ -95,6 +96,7 @@ public class BidService {
         bid.setManager(userService.getCurrentUserOrThrow());
         bid.setComment(comment);
         bidRepository.save(bid);
+        notificationService.notifySenderAboutBidStatus(bid);
     }
 
     @Transactional
@@ -112,6 +114,7 @@ public class BidService {
             case ROOM_CHANGE -> acceptRoomChangeBid((RoomChangeBid) bid);
         }
         bidRepository.save(bid);
+        notificationService.notifySenderAboutBidStatus(bid);
     }
 
     @Transactional
@@ -260,9 +263,10 @@ public class BidService {
             bid.setStatus(Bid.Status.DENIED);
             bid.setComment("Auto-denied: target room is full");
             bidRepository.save(bid);
+            notificationService.notifySenderAboutBidStatus(bid);
+        } else {
+            notificationService.notifyManagersAboutNewBid(bid);
         }
-        
-        notificationService.notifyManagersAboutNewBid(bid);
     }
 
     public void evictResident(String login) {
