@@ -3,11 +3,13 @@ package ru.itmo.is.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.itmo.is.dto.NotificationResponse;
+import ru.itmo.is.entity.bid.Bid;
 import ru.itmo.is.entity.notification.Notification;
 import ru.itmo.is.entity.user.User;
 import ru.itmo.is.exception.ForbiddenException;
 import ru.itmo.is.exception.NotFoundException;
 import ru.itmo.is.repository.NotificationRepository;
+import ru.itmo.is.repository.UserRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,6 +18,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class NotificationService {
     private final NotificationRepository notificationRepository;
+    private final UserRepository userRepository;
     private final UserService userService;
 
     public List<NotificationResponse> getUnreadNotifications() {
@@ -44,6 +47,23 @@ public class NotificationService {
     public void markAllAsRead() {
         User receiver = userService.getCurrentUserOrThrow();
         notificationRepository.setAllReadStatus(receiver.getLogin());
+    }
+
+    public void notifyManagersAboutNewBid(Bid bid) {
+        if (bid.getStatus() == Bid.Status.IN_PROCESS) {
+            List<Notification> notifications = userRepository.getUsersByRoleIn(List.of(User.Role.MANAGER))
+                    .stream()
+                    .map(manager -> {
+                        Notification notification = new Notification();
+                        notification.setBid(bid);
+                        notification.setReceiver(manager);
+                        notification.setText("Появилась новая заявка");
+                        notification.setStatus(Notification.Status.CREATED);
+                        return notification;
+                    })
+                    .toList();
+            notificationRepository.saveAll(notifications);
+        }
     }
 
     private NotificationResponse mapNotification(Notification entity) {

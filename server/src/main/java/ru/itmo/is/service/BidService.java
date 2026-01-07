@@ -29,6 +29,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class BidService {
     private final UserService userService;
+    private final NotificationService notificationService;
     private final UniversityRepository universityRepository;
     private final RoomRepository roomRepository;
     private final BidRepository bidRepository;
@@ -164,6 +165,8 @@ public class BidService {
         bidRepository.save(bid);
 
         updateBidFiles(req.getAttachmentKeys(), bid);
+        
+        notificationService.notifyManagersAboutNewBid(bid);
     }
 
     public void createEvictionBid(EvictionRequest req) {
@@ -188,6 +191,8 @@ public class BidService {
         bidRepository.save(bid);
 
         updateBidFiles(req.getAttachmentKeys(), bid);
+        
+        notificationService.notifyManagersAboutNewBid(bid);
     }
 
     public void createDepartureBid(DepartureRequest req) {
@@ -214,6 +219,8 @@ public class BidService {
         bidRepository.save(bid);
 
         updateBidFiles(req.getAttachmentKeys(), bid);
+        
+        notificationService.notifyManagersAboutNewBid(bid);
     }
 
     public void createRoomChangeBid(RoomChangeRequest req) {
@@ -254,6 +261,8 @@ public class BidService {
             bid.setComment("Auto-denied: target room is full");
             bidRepository.save(bid);
         }
+        
+        notificationService.notifyManagersAboutNewBid(bid);
     }
 
     public void evictResident(String login) {
