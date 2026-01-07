@@ -17,8 +17,12 @@ import java.nio.file.Paths;
 @Component
 public class FileStorage {
     private final static int MAX_KEY_GEN_ATTEMPTS = 10;
-    @Value("${file.storage.dir}")
-    private String storageDir;
+
+    private final String storageDir;
+
+    public FileStorage(@Value("${file.storage.dir}") String storageDir) {
+        this.storageDir = storageDir;
+    }
 
     public FileRecord save(MultipartFile file) {
         try {

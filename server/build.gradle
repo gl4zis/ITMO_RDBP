@@ -1,6 +1,7 @@
 plugins {
-    id 'org.springframework.boot' version '3.4.1'
     id 'java'
+    id 'idea'
+    id 'org.springframework.boot' version '3.4.1'
     id 'org.openapi.generator' version '7.4.0'
 }
 
@@ -19,12 +20,28 @@ repositories {
 
 sourceSets {
     main {
-        java {
-            srcDirs += "$buildDir/generated/src/main/java"
-        }
+        java.srcDirs += "$buildDir/generated/src/main/java"
+    }
+    testUnit {
+        java.srcDir 'src/test-unit/java'
+        resources.srcDir 'src/test-unit/resources'
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+    }
+    testIntegration {
+        java.srcDir 'src/test-integration/java'
+        resources.srcDir 'src/test-integration/resources'
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
     }
 }
 
+idea {
+    module {
+        testSourceDirs += project.sourceSets.testUnit.java.srcDirs + project.sourceSets.testIntegration.java.srcDirs
+        testSourceDirs += project.sourceSets.testUnit.resources.srcDirs + project.sourceSets.testIntegration.resources.srcDirs
+    }
+}
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa:3.4.1'
@@ -43,6 +60,21 @@ dependencies {
 
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.3'
     implementation 'org.openapitools:jackson-databind-nullable:0.2.8'
+
+    // JUnit5 dependencies for unit tests
+    testUnitImplementation 'org.springframework.boot:spring-boot-starter-test:3.4.1'
+    testUnitImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testUnitRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // JUnit5 dependencies for integration tests
+    testIntegrationImplementation 'org.springframework.boot:spring-boot-starter-test:3.4.1'
+    testIntegrationImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testIntegrationRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    
+    // TestContainers for integration tests
+    testIntegrationImplementation 'org.testcontainers:testcontainers:1.19.8'
+    testIntegrationImplementation 'org.testcontainers:junit-jupiter:1.19.8'
+    testIntegrationImplementation 'org.testcontainers:postgresql:1.19.8'
 
     configurations.all {
         exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
@@ -65,4 +97,35 @@ openApiGenerate {
 
 tasks.named('compileJava') {
     dependsOn tasks.named('openApiGenerate')
+}
+
+configurations {
+    testUnitImplementation.extendsFrom implementation
+    testUnitRuntimeOnly.extendsFrom runtimeOnly
+    testIntegrationImplementation.extendsFrom implementation
+    testIntegrationRuntimeOnly.extendsFrom runtimeOnly
+}
+
+tasks.register('testUnit', Test) {
+    description = 'Runs unit tests.'
+    group = 'verification'
+    testClassesDirs = sourceSets.testUnit.output.classesDirs
+    classpath = sourceSets.testUnit.runtimeClasspath
+    useJUnitPlatform()
+}
+
+tasks.register('testIntegration', Test) {
+    description = 'Runs integration tests.'
+    group = 'verification'
+    testClassesDirs = sourceSets.testIntegration.output.classesDirs
+    classpath = sourceSets.testIntegration.runtimeClasspath
+    useJUnitPlatform()
+}
+
+tasks.named('test') {
+    enabled = false
+}
+
+tasks.named('check') {
+    dependsOn testUnit, testIntegration
 }

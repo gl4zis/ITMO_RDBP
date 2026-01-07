@@ -1,0 +1,40 @@
+server:
+  port: 0  # Random port for tests
+
+jwt:
+  access:
+    key: test-jwt-key-for-integration-tests
+
+spring:
+  datasource:
+    # Will be overridden by TestContainers in AbstractIntegrationTest
+    url: jdbc:postgresql://localhost:5432/testdb
+    username: test
+    password: test
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 300000
+      max-lifetime: 1800000
+      leak-detection-threshold: 60000
+      connection-test-query: SELECT 1
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: create-drop  # Create schema from entities
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+
+file:
+  storage:
+    dir: ${java.io.tmpdir}/test-uploads
+
+logging:
+  level:
+    org.testcontainers: INFO
+    org.springframework: WARN
+    org.hibernate: WARN
