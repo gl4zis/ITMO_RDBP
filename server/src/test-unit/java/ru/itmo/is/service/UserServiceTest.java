@@ -47,6 +47,8 @@ class UserServiceTest {
     private SecurityContext securityContext;
     @Mock
     private ResidentRepository residentRepository;
+    @Mock
+    private EventService eventService;
     private UserService userService;
 
     private User user;
@@ -70,7 +72,8 @@ class UserServiceTest {
                 eventRepository,
                 securityContext,
                 residentRepository,
-                userMapper
+                userMapper,
+                eventService
         );
     }
 
@@ -193,7 +196,7 @@ class UserServiceTest {
         
         when(userRepository.getUsersByRoleIn(List.of(User.Role.RESIDENT)))
                 .thenReturn(List.of(resident));
-        when(eventRepository.calculateResidentDebt("testuser")).thenReturn(0);
+        when(eventService.calculateResidentDebt("testuser")).thenReturn(0);
         when(eventRepository.getLastInOutEvent("testuser")).thenReturn(Optional.empty());
 
         List<ResidentResponse> result = userService.getResidents();
@@ -239,7 +242,7 @@ class UserServiceTest {
         resident1.setLogin("resident1");
         resident1.setRole(User.Role.RESIDENT);
 
-        when(eventRepository.getResidentsToEvictionByDebt()).thenReturn(List.of("resident1"));
+        when(eventService.getResidentsToEvictionByDebt()).thenReturn(List.of("resident1"));
         when(userRepository.getByLoginIn(List.of("resident1"))).thenReturn(List.of(resident1));
         when(userRepository.getUsersByRoleIn(List.of(User.Role.RESIDENT))).thenReturn(List.of());
 
@@ -259,7 +262,7 @@ class UserServiceTest {
         outEvent.setType(Event.Type.OUT);
         outEvent.setTimestamp(LocalDateTime.now().minusDays(10));
 
-        when(eventRepository.getResidentsToEvictionByDebt()).thenReturn(List.of());
+        when(eventService.getResidentsToEvictionByDebt()).thenReturn(List.of());
         when(userRepository.getUsersByRoleIn(List.of(User.Role.RESIDENT))).thenReturn(List.of(resident1));
         when(eventRepository.getLastInOutEvent("resident1")).thenReturn(Optional.of(outEvent));
 
@@ -280,7 +283,7 @@ class UserServiceTest {
         inEvent.setType(Event.Type.IN);
         inEvent.setTimestamp(LocalDateTime.of(LocalDate.now(), LocalTime.of(3, 0)));
 
-        when(eventRepository.getResidentsToEvictionByDebt()).thenReturn(List.of());
+        when(eventService.getResidentsToEvictionByDebt()).thenReturn(List.of());
         when(userRepository.getUsersByRoleIn(List.of(User.Role.RESIDENT))).thenReturn(List.of(resident1));
         when(eventRepository.getLastInOutEvent("resident1")).thenReturn(Optional.of(inEvent));
 
@@ -302,7 +305,7 @@ class UserServiceTest {
         outEvent.setTimestamp(java.time.LocalDateTime.of(
                 java.time.LocalDate.now().minusDays(10), java.time.LocalTime.of(3, 0)));
 
-        when(eventRepository.getResidentsToEvictionByDebt()).thenReturn(List.of("resident1"));
+        when(eventService.getResidentsToEvictionByDebt()).thenReturn(List.of("resident1"));
         when(userRepository.getByLoginIn(List.of("resident1"))).thenReturn(List.of(resident1));
         when(userRepository.getUsersByRoleIn(List.of(User.Role.RESIDENT))).thenReturn(List.of(resident1));
         when(eventRepository.getLastInOutEvent("resident1")).thenReturn(Optional.of(outEvent));
@@ -316,7 +319,7 @@ class UserServiceTest {
 
     @Test
     void testGetResidentsToEviction_WithNoResidents_ShouldReturnEmptyList() {
-        when(eventRepository.getResidentsToEvictionByDebt()).thenReturn(List.of());
+        when(eventService.getResidentsToEvictionByDebt()).thenReturn(List.of());
         when(userRepository.getUsersByRoleIn(List.of(User.Role.RESIDENT))).thenReturn(List.of());
 
         List<ToEvictionResidentResponse> result = userService.getResidentsToEviction();
@@ -333,9 +336,9 @@ class UserServiceTest {
 
         Event outEvent = new Event();
         outEvent.setType(Event.Type.OUT);
-        outEvent.setTimestamp(java.time.LocalDateTime.now().minusDays(5)); // Less than 7 days
+        outEvent.setTimestamp(LocalDateTime.of(LocalDate.now().minusDays(5), LocalTime.of(10, 0))); // Less than 7 days
 
-        when(eventRepository.getResidentsToEvictionByDebt()).thenReturn(List.of());
+        when(eventService.getResidentsToEvictionByDebt()).thenReturn(List.of());
         when(userRepository.getUsersByRoleIn(List.of(User.Role.RESIDENT))).thenReturn(List.of(resident1));
         when(eventRepository.getLastInOutEvent("resident1")).thenReturn(Optional.of(outEvent));
 
@@ -353,10 +356,9 @@ class UserServiceTest {
 
         Event inEvent = new Event();
         inEvent.setType(Event.Type.IN);
-        inEvent.setTimestamp(java.time.LocalDateTime.of(
-                java.time.LocalDate.now(), java.time.LocalTime.of(10, 0))); // Normal time
+        inEvent.setTimestamp(LocalDateTime.of(LocalDate.now(), LocalTime.of(10, 0))); // Normal time
 
-        when(eventRepository.getResidentsToEvictionByDebt()).thenReturn(List.of());
+        when(eventService.getResidentsToEvictionByDebt()).thenReturn(List.of());
         when(userRepository.getUsersByRoleIn(List.of(User.Role.RESIDENT))).thenReturn(List.of(resident1));
         when(eventRepository.getLastInOutEvent("resident1")).thenReturn(Optional.of(inEvent));
 

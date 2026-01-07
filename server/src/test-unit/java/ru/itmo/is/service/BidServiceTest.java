@@ -58,6 +58,10 @@ class BidServiceTest {
     private BidMapper bidMapper;
     @Mock
     private RoomMapper roomMapper;
+    @Mock
+    private RoomService roomService;
+    @Mock
+    private NotificationService notificationService;
     @InjectMocks
     private BidService bidService;
 
@@ -418,7 +422,7 @@ class BidServiceTest {
         when(userService.getCurrentUserOrThrow()).thenReturn(manager);
         when(roomRepository.getByTypeAndDormitoryId(Room.Type.BLOCK, 1))
                 .thenReturn(List.of(room));
-        when(roomRepository.isRoomFree(1)).thenReturn(true);
+        when(roomService.isRoomFree(any())).thenReturn(true);
         doNothing().when(residentRepository).userIsResidentNow(anyString(), anyInt(), anyInt());
         when(userRepository.save(any(User.class))).thenReturn(currentUser);
         when(eventRepository.save(any(Event.class))).thenReturn(new Event());
@@ -474,6 +478,7 @@ class BidServiceTest {
         when(userService.getResidentByLogin("user1")).thenReturn(resident);
         when(residentRepository.save(any(Resident.class))).thenReturn(resident);
         when(eventRepository.save(any(Event.class))).thenReturn(new Event());
+        when(roomService.isRoomFree(any())).thenReturn(true);
 
         bidService.acceptBid(4L);
 
@@ -508,7 +513,7 @@ class BidServiceTest {
         when(userService.getCurrentUserOrThrow()).thenReturn(manager);
         when(roomRepository.getByTypeAndDormitoryId(Room.Type.BLOCK, 1))
                 .thenReturn(List.of(room));
-        when(roomRepository.isRoomFree(1)).thenReturn(false);
+        when(roomService.isRoomFree(any())).thenReturn(false);
         when(roomRepository.getByTypeAndDormitoryId(Room.Type.AISLE, 1))
                 .thenReturn(new ArrayList<>());
 
@@ -759,7 +764,7 @@ class BidServiceTest {
                 .thenReturn(new ArrayList<>());
         when(roomRepository.getByTypeAndDormitoryId(Room.Type.AISLE, 1))
                 .thenReturn(List.of(aisleRoom));
-        when(roomRepository.isRoomFree(2)).thenReturn(true);
+        when(roomService.isRoomFree(any())).thenReturn(true);
         doNothing().when(residentRepository).userIsResidentNow(anyString(), anyInt(), anyInt());
         when(userRepository.save(any(User.class))).thenReturn(currentUser);
         when(eventRepository.save(any(Event.class))).thenReturn(new Event());
@@ -788,7 +793,7 @@ class BidServiceTest {
         when(userService.getResidentByLogin("user1")).thenReturn(resident);
         when(roomRepository.getByTypeAndDormitoryId(Room.Type.BLOCK, 1))
                 .thenReturn(List.of(newRoom));
-        when(roomRepository.isRoomFree(2)).thenReturn(true);
+        when(roomService.isRoomFree(any())).thenReturn(true);
         when(residentRepository.save(any(Resident.class))).thenReturn(resident);
         when(eventRepository.save(any(Event.class))).thenReturn(new Event());
 
@@ -938,10 +943,10 @@ class BidServiceTest {
         when(userService.getCurrentUserOrThrow()).thenReturn(manager);
         when(roomRepository.getByTypeAndDormitoryId(Room.Type.BLOCK, 1))
                 .thenReturn(List.of(occupiedBlockRoom));
-        when(roomRepository.isRoomFree(1)).thenReturn(false);
+        when(roomService.isRoomFree(occupiedBlockRoom)).thenReturn(false);
         when(roomRepository.getByTypeAndDormitoryId(Room.Type.AISLE, 1))
                 .thenReturn(List.of(freeAisleRoom));
-        when(roomRepository.isRoomFree(2)).thenReturn(true);
+        when(roomService.isRoomFree(freeAisleRoom)).thenReturn(true);
         doNothing().when(residentRepository).userIsResidentNow(anyString(), anyInt(), anyInt());
         when(userRepository.save(any(User.class))).thenReturn(currentUser);
         when(eventRepository.save(any(Event.class))).thenReturn(new Event());

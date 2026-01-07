@@ -1,8 +1,8 @@
 package ru.itmo.is.service;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.itmo.is.dto.*;
 import ru.itmo.is.entity.Event;
 import ru.itmo.is.entity.bid.Bid;
@@ -29,6 +29,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class BidService {
     private final UserService userService;
+    private final NotificationService notificationService;
     private final UniversityRepository universityRepository;
     private final RoomRepository roomRepository;
     private final BidRepository bidRepository;
@@ -40,6 +41,7 @@ public class BidService {
     private final BidComparator bidComparator;
     private final BidMapper bidMapper;
     private final RoomMapper roomMapper;
+    private final RoomService roomService;
 
     public List<BidType> getSelfOpenedBidTypes() {
         return bidRepository.getOpenedBidTypes(userService.getCurrentUserOrThrow().getLogin())
@@ -85,6 +87,7 @@ public class BidService {
         throw new ForbiddenException("You are not allowed to get bid by this user");
     }
 
+    @Transactional
     public void denyBid(Long id, String comment) {
         Bid bid = bidRepository.findById(id)
                 .filter(b -> b.getStatus() == Bid.Status.IN_PROCESS)
@@ -93,9 +96,9 @@ public class BidService {
         bid.setManager(userService.getCurrentUserOrThrow());
         bid.setComment(comment);
         bidRepository.save(bid);
+        notificationService.notifySenderAboutBidStatus(bid);
     }
 
-    @Transactional
     public void acceptBid(Long id) {
         Bid bid = bidRepository.findById(id)
                 .filter(b -> b.getStatus() == Bid.Status.IN_PROCESS)
@@ -110,6 +113,7 @@ public class BidService {
             case ROOM_CHANGE -> acceptRoomChangeBid((RoomChangeBid) bid);
         }
         bidRepository.save(bid);
+        notificationService.notifySenderAboutBidStatus(bid);
     }
 
     @Transactional
@@ -163,6 +167,8 @@ public class BidService {
         bidRepository.save(bid);
 
         updateBidFiles(req.getAttachmentKeys(), bid);
+        
+        notificationService.notifyManagersAboutNewBid(bid);
     }
 
     public void createEvictionBid(EvictionRequest req) {
@@ -187,6 +193,8 @@ public class BidService {
         bidRepository.save(bid);
 
         updateBidFiles(req.getAttachmentKeys(), bid);
+        
+        notificationService.notifyManagersAboutNewBid(bid);
     }
 
     public void createDepartureBid(DepartureRequest req) {
@@ -213,6 +221,8 @@ public class BidService {
         bidRepository.save(bid);
 
         updateBidFiles(req.getAttachmentKeys(), bid);
+        
+        notificationService.notifyManagersAboutNewBid(bid);
     }
 
     public void createRoomChangeBid(RoomChangeRequest req) {
@@ -244,8 +254,16 @@ public class BidService {
         bid.setText(req.getText());
         bid.setRoomTo(roomO.orElse(null));
         bid.setRoomPreferType(roomMapper.mapRoomTypeToModel(req.getRoomPreferType()));
-        bidRepository.save(bid);
 
+        if (roomO.isPresent() && !roomService.isRoomFree(roomO.get())) {
+            bid.setStatus(Bid.Status.DENIED);
+            bid.setComment("Auto-denied: target room is full");
+            notificationService.notifySenderAboutBidStatus(bid);
+        } else {
+            notificationService.notifyManagersAboutNewBid(bid);
+        }
+
+        bidRepository.save(bid);
         updateBidFiles(req.getAttachmentKeys(), bid);
     }
 
@@ -307,13 +325,13 @@ public class BidService {
         List<Room> blockRoomIds = roomRepository
                 .getByTypeAndDormitoryId(Room.Type.BLOCK, bid.getDormitory().getId());
         Optional<Room> roomO = blockRoomIds.stream()
-                .filter(r -> roomRepository.isRoomFree(r.getId()))
+                .filter(roomService::isRoomFree)
                 .findFirst();
         if (roomO.isEmpty()) {
             List<Room> aisleRoomIds = roomRepository
                     .getByTypeAndDormitoryId(Room.Type.AISLE, bid.getDormitory().getId());
             roomO = aisleRoomIds.stream()
-                    .filter(r -> roomRepository.isRoomFree(r.getId()))
+                    .filter(roomService::isRoomFree)
                     .findFirst();
         }
         if (roomO.isEmpty()) {
@@ -349,20 +367,21 @@ public class BidService {
         Room room;
         if (bid.getRoomTo() != null) {
             room = bid.getRoomTo();
-            if (room.getResidents().size() == room.getCapacity()) {
+            if (!roomService.isRoomFree(room)) {
                 throw new BadRequestException("Room is not free");
             }
         } else {
             List<Room> rooms = roomRepository
                     .getByTypeAndDormitoryId(bid.getRoomPreferType(), resident.getRoom().getDormitory().getId());
             Optional<Room> roomO = rooms.stream()
-                    .filter(r -> roomRepository.isRoomFree(r.getId()))
+                    .filter(roomService::isRoomFree)
                     .findFirst();
             if (roomO.isEmpty()) {
                 throw new BadRequestException("No free room");
             }
             room = roomO.get();
         }
+
         resident.setRoom(room);
         residentRepository.save(resident);
 

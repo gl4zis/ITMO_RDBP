@@ -17,6 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PaymentService {
     private final UserService userService;
+    private final EventService eventService;
     private final EventRepository eventRepository;
 
     public PaymentResponse getSelfPaymentInfo() {
@@ -29,15 +30,15 @@ public class PaymentService {
         List<Event> paymentEvents = eventRepository
                 .getByTypeInAndUsrLoginOrderByTimestampDesc(List.of(Event.Type.PAYMENT), resident.getLogin());
         List<PaymentHistoryRecord> history = paymentEvents.stream().map(this::mapHistory).toList();
-        Integer debt = eventRepository.calculateResidentDebt(resident.getLogin());
-        LocalDateTime lastPaymentTime = eventRepository.getLastPaymentTime(resident.getLogin());
+        Integer debt = eventService.calculateResidentDebt(resident.getLogin());
+        LocalDateTime lastPaymentTime = eventService.getLastPaymentTime(resident.getLogin());
 
         return new PaymentResponse(debt, resident.getRoom().getCost(), lastPaymentTime, history);
     }
 
     public void currentUserPay(PaymentRequest req) {
         Resident resident = userService.getCurrentResidentOrThrow();
-        Integer debt = eventRepository.calculateResidentDebt(resident.getLogin());
+        int debt = eventService.calculateResidentDebt(resident.getLogin());
         if (req.getSum() != debt) {
             throw new BadRequestException("You can pay not equals to your debt sum");
         }

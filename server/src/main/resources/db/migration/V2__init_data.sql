@@ -109,3 +109,12 @@ INSERT INTO occupation_bid(id, university_id, dormitory_id) VALUES
 
 INSERT INTO departure_bid(id, day_from, day_to) VALUES
 (2, NOW()::DATE, (NOW() + INTERVAL '1 month')::DATE);
+
+-- Synchronize sequences to prevent ID conflicts
+SELECT setval('university_id_seq', (SELECT COALESCE(MAX(id), 1) FROM university));
+SELECT setval('dormitory_id_seq', (SELECT COALESCE(MAX(id), 1) FROM dormitory));
+SELECT setval('room_id_seq', (SELECT COALESCE(MAX(id), 1) FROM room));
+SELECT setval('event_id_seq', (SELECT COALESCE(MAX(id), 1) FROM event));
+SELECT setval('bid_id_seq', (SELECT COALESCE(MAX(id), 1) FROM bid));
+SELECT setval('notification_id_seq', (SELECT COALESCE(MAX(id), 1) FROM notification));
+

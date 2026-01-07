@@ -108,9 +108,11 @@ class RoomServiceTest {
         Room otherRoom = new Room();
         otherRoom.setId(2);
         otherRoom.setDormitory(dormitory);
+        otherRoom.setResidents(new ArrayList<>());
+        otherRoom.setCapacity(2);
         
         when(userService.getCurrentResidentOrThrow()).thenReturn(resident);
-        when(roomRepository.getAvailableInDormitory(1)).thenReturn(List.of(room, otherRoom));
+        when(roomRepository.getInDormitory(1)).thenReturn(List.of(room, otherRoom));
         when(roomMapper.roomToDto(otherRoom)).thenReturn(roomResponse);
 
         List<RoomResponse> result = roomService.getForResident();

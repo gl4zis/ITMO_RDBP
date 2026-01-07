@@ -31,7 +31,8 @@ public class RoomService {
 
     public List<RoomResponse> getForResident() {
         Resident resident = userService.getCurrentResidentOrThrow();
-        return roomRepository.getAvailableInDormitory(resident.getRoom().getDormitory().getId()).stream()
+        return roomRepository.getInDormitory(resident.getRoom().getDormitory().getId()).stream()
+                .filter(this::isRoomFree)
                 .filter(r -> !Objects.equals(r.getId(), resident.getRoom().getId()))
                 .map(roomMapper::roomToDto)
                 .toList();
@@ -70,5 +71,9 @@ public class RoomService {
             throw new BadRequestException("Room has residents");
         }
         roomRepository.delete(room);
+    }
+
+    public boolean isRoomFree(Room room) {
+        return room.getResidents().size() < room.getCapacity();
     }
 }

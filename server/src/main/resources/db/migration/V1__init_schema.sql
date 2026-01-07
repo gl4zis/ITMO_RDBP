@@ -280,3 +280,4 @@ LANGUAGE sql;
 
 CREATE INDEX event_type ON event USING BTREE (type);
 CREATE INDEX event_ts ON event USING BTREE (timestamp);
+
