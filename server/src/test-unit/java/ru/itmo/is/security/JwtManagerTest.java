@@ -12,8 +12,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class JwtManagerTest {
-    private static final String TEST_ACCESS_KEY = "test-access-key";
-    private static final String TEST_REFRESH_KEY = "test-refresh-key";
+    private static final String TEST_ACCESS_KEY = "test-access-key-with-sufficient-length-for-hmac-sha256-algorithm";
+    private static final String TEST_REFRESH_KEY = "test-refresh-key-with-sufficient-length-for-hmac-sha256-algorithm";
 
     private JwtManager jwtManager;
     private User testUser;
