@@ -38,6 +38,8 @@ paths:
     $ref: './paths/auth.yaml#/register-other'
   /auth/change-password:
     $ref: './paths/auth.yaml#/change-password'
+  /auth/refresh:
+    $ref: './paths/auth.yaml#/refresh'
   /auth/profile:
     $ref: './paths/auth.yaml#/profile'
 

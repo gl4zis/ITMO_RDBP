@@ -14,6 +14,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class UniversityService {
+    public static final String UNIVERSITY_NOT_FOUND = "University not found";
+
     private final UniversityRepository universityRepository;
     private final UniversityMapper universityMapper;
 
@@ -24,7 +26,7 @@ public class UniversityService {
     public UniversityResponse getUniversity(int id) {
         return universityRepository.findById(id)
                 .map(universityMapper::toResponse)
-                .orElseThrow(() -> new NotFoundException("University not found"));
+                .orElseThrow(() -> new NotFoundException(UNIVERSITY_NOT_FOUND));
     }
 
     public void addUniversity(UniversityRequest req) {
@@ -36,7 +38,7 @@ public class UniversityService {
 
     public void updateUniversity(int id, UniversityRequest req) {
         University university = universityRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("University not found"));
+                .orElseThrow(() -> new NotFoundException(UNIVERSITY_NOT_FOUND));
         university.setName(req.getName());
         university.setAddress(req.getAddress());
         universityRepository.save(university);
@@ -44,7 +46,7 @@ public class UniversityService {
 
     public void deleteUniversity(int id) {
         University university = universityRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("University not found"));
+                .orElseThrow(() -> new NotFoundException(UNIVERSITY_NOT_FOUND));
         universityRepository.delete(university);
     }
 }

@@ -15,6 +15,8 @@ import java.util.Date;
 @Component
 public class JwtTestHelper {
     private static final String ROLE_CLAIM_KEY = "role";
+    private static final String TOKEN_TYPE_CLAIM_KEY = "token_type";
+    private static final String ACCESS_TOKEN_TYPE = "access";
 
     private final SecretKey accessKey;
 
@@ -29,6 +31,7 @@ public class JwtTestHelper {
         return Jwts.builder()
                 .subject(login)
                 .claim(ROLE_CLAIM_KEY, role.name())
+                .claim(TOKEN_TYPE_CLAIM_KEY, ACCESS_TOKEN_TYPE)
                 .issuedAt(now)
                 .expiration(exp)
                 .signWith(accessKey)

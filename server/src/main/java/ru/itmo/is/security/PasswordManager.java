@@ -1,5 +1,7 @@
 package ru.itmo.is.security;
 
+import ru.itmo.is.exception.InvalidHashMethodException;
+
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -23,7 +25,7 @@ public class PasswordManager {
             }
             return hash.toString();
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
+            throw new InvalidHashMethodException(e);
         }
     }
 }

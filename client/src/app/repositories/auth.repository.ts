@@ -7,6 +7,7 @@ import {RegisterReq} from '../models/auth/register.model';
 import {PasswordChangeReq} from '../models/auth/password-change.request';
 import {OneFieldModel} from '../models/one-field.model';
 import {Profile} from '../models/auth/profile.model';
+import {AuthTokens} from '../models/auth/auth-tokens.model';
 
 @Injectable({
   providedIn: 'root'
@@ -16,12 +17,12 @@ export class AuthRepository {
 
   constructor(private http: HttpClient) {}
 
-  register(req: RegisterReq): Observable<OneFieldModel<string>> {
-    return this.http.post<OneFieldModel<string>>(`${this.api}/register`, req);
+  register(req: RegisterReq): Observable<AuthTokens> {
+    return this.http.post<AuthTokens>(`${this.api}/register`, req);
   }
 
-  login(req: LoginReq): Observable<OneFieldModel<string>> {
-    return this.http.post<OneFieldModel<string>>(`${this.api}/login`, req);
+  login(req: LoginReq): Observable<AuthTokens> {
+    return this.http.post<AuthTokens>(`${this.api}/login`, req);
   }
 
   registerOther(req: RegisterReq): Observable<void> {
@@ -30,6 +31,10 @@ export class AuthRepository {
 
   changePassword(req: PasswordChangeReq): Observable<void> {
     return this.http.post<void>(`${this.api}/change-password`, req);
+  }
+
+  refresh(refreshToken: string): Observable<AuthTokens> {
+    return this.http.post<AuthTokens>(`${this.api}/refresh`, { data: refreshToken });
   }
 
   getProfile(): Observable<Profile> {

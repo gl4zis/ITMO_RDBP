@@ -70,12 +70,14 @@ class AuthServiceTest {
         user.setRole(User.Role.NON_RESIDENT);
         when(userMapper.toUserModel(registerRequest)).thenReturn(user);
         when(userRepository.existsByLogin("testuser")).thenReturn(false);
-        when(jwtManager.createToken(any(User.class))).thenReturn("token123");
+        when(jwtManager.createAccessToken(any(User.class))).thenReturn("access-token-123");
+        when(jwtManager.createRefreshToken(any(User.class))).thenReturn("refresh-token-123");
 
-        StringData result = authService.register(registerRequest);
+        AuthTokens result = authService.register(registerRequest);
 
         assertNotNull(result);
-        assertEquals("token123", result.getData());
+        assertEquals("access-token-123", result.getAccessToken());
+        assertEquals("refresh-token-123", result.getRefreshToken());
         verify(userRepository).save(any(User.class));
     }
 
@@ -86,9 +88,10 @@ class AuthServiceTest {
         when(userMapper.toUserModel(registerRequest)).thenReturn(user);
         when(userRepository.countByRole(User.Role.MANAGER)).thenReturn(0L);
         when(userRepository.existsByLogin("testuser")).thenReturn(false);
-        when(jwtManager.createToken(any(User.class))).thenReturn("token123");
+        when(jwtManager.createAccessToken(any(User.class))).thenReturn("access-token-123");
+        when(jwtManager.createRefreshToken(any(User.class))).thenReturn("refresh-token-123");
 
-        StringData result = authService.register(registerRequest);
+        AuthTokens result = authService.register(registerRequest);
 
         assertNotNull(result);
         verify(userRepository).save(any(User.class));
@@ -129,12 +132,14 @@ class AuthServiceTest {
     @Test
     void testLogin_WithValidCredentials_ShouldReturnToken() {
         when(userRepository.findById("testuser")).thenReturn(Optional.of(user));
-        when(jwtManager.createToken(user)).thenReturn("token123");
+        when(jwtManager.createAccessToken(user)).thenReturn("access-token-123");
+        when(jwtManager.createRefreshToken(user)).thenReturn("refresh-token-123");
 
-        StringData result = authService.login(loginRequest);
+        AuthTokens result = authService.login(loginRequest);
 
         assertNotNull(result);
-        assertEquals("token123", result.getData());
+        assertEquals("access-token-123", result.getAccessToken());
+        assertEquals("refresh-token-123", result.getRefreshToken());
     }
 
     @Test

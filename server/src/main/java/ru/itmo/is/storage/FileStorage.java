@@ -39,14 +39,14 @@ public class FileStorage {
         }
     }
 
-    public FileData get(FileRecord record) {
-        Path path = Paths.get(storageDir, record.getKey());
+    public FileData get(FileRecord fr) {
+        Path path = Paths.get(storageDir, fr.getKey());
         Resource resource = new FileSystemResource(path);
         if (!resource.exists() || !resource.isReadable()) {
             throw new NotFoundException("File not found");
         }
 
-        return new FileData(record.getName(), resource);
+        return new FileData(fr.getName(), resource);
     }
 
     private String generateKey() {

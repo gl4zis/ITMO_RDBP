@@ -19,12 +19,12 @@ public class FileService {
 
     @Transactional
     public String upload(MultipartFile file) {
-        FileRecord record = fileStorage.save(file);
+        FileRecord fr = fileStorage.save(file);
         var bidFile = new BidFile();
-        bidFile.setKey(record.getKey());
-        bidFile.setName(record.getName());
+        bidFile.setKey(fr.getKey());
+        bidFile.setName(fr.getName());
         bidFileRepository.save(bidFile);
-        return record.getKey();
+        return fr.getKey();
     }
 
     public FileData get(String key) {

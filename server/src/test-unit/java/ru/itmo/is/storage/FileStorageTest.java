@@ -84,8 +84,8 @@ class FileStorageTest {
         Files.createDirectories(filePath.getParent());
         Files.createFile(filePath);
 
-        FileRecord record = new FileRecord("test.pdf", key);
-        FileData result = fileStorage.get(record);
+        FileRecord fr = new FileRecord("test.pdf", key);
+        FileData result = fileStorage.get(fr);
 
         assertNotNull(result);
         assertEquals("test.pdf", result.name());
@@ -94,10 +94,10 @@ class FileStorageTest {
 
     @Test
     void testGet_WhenFileNotExists_ShouldThrowNotFoundException() {
-        FileRecord record = new FileRecord("test.pdf", "non-existent-key");
+        FileRecord fr = new FileRecord("test.pdf", "non-existent-key");
 
         assertThrows(NotFoundException.class, () -> {
-            fileStorage.get(record);
+            fileStorage.get(fr);
         });
     }
 
@@ -109,10 +109,10 @@ class FileStorageTest {
         File file = Files.createFile(filePath).toFile();
         file.setReadable(false);
 
-        FileRecord record = new FileRecord("test.pdf", key);
+        FileRecord fr = new FileRecord("test.pdf", key);
 
         assertThrows(NotFoundException.class, () -> {
-            fileStorage.get(record);
+            fileStorage.get(fr);
         });
 
         file.setReadable(true);

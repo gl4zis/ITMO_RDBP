@@ -28,14 +28,20 @@ public class AuthController implements AuthApi {
 
     @Override
     @Anonymous
-    public ResponseEntity<StringData> login(LoginRequest loginRequest) {
+    public ResponseEntity<AuthTokens> login(LoginRequest loginRequest) {
         return ResponseEntity.ok(authService.login(loginRequest));
     }
 
     @Override
     @Anonymous
-    public ResponseEntity<StringData> register(RegisterRequest registerRequest) {
+    public ResponseEntity<AuthTokens> register(RegisterRequest registerRequest) {
         return ResponseEntity.ok(authService.register(registerRequest));
+    }
+
+    @Override
+    @Anonymous
+    public ResponseEntity<AuthTokens> refresh(StringData refreshTokenRequest) {
+        return ResponseEntity.ok(authService.refresh(refreshTokenRequest.getData()));
     }
 
     @Override

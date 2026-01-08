@@ -1005,8 +1005,8 @@ class BidServiceTest {
 
         bidService.createRoomChangeBid(req);
 
-        verify(bidRepository).save(argThat(bid -> {
-            if (bid instanceof RoomChangeBid rcb) {
+        verify(bidRepository).save(argThat(createdBid -> {
+            if (createdBid instanceof RoomChangeBid rcb) {
                 return rcb.getRoomTo() == null && rcb.getRoomPreferType() == Room.Type.BLOCK;
             }
             return false;

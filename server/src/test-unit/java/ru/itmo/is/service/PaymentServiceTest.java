@@ -143,10 +143,10 @@ class PaymentServiceTest {
         assertNotNull(result);
         assertNotNull(result.getHistory());
         assertEquals(1, result.getHistory().size());
-        PaymentHistoryRecord record = result.getHistory().get(0);
-        assertEquals("Test Dormitory", record.getDormitory());
-        assertEquals(101, record.getRoomNumber());
-        assertEquals(500, record.getSum());
+        PaymentHistoryRecord phr = result.getHistory().getFirst();
+        assertEquals("Test Dormitory", phr.getDormitory());
+        assertEquals(101, phr.getRoomNumber());
+        assertEquals(500, phr.getSum());
     }
 }
 

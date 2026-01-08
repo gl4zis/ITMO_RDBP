@@ -1,6 +1,6 @@
 register:
   post:
-    summary: 'Register new user and get token'
+    summary: 'Register new user and get token pair'
     operationId: register
     tags:
       - Auth
@@ -16,7 +16,7 @@ register:
         content:
           application/json:
             schema:
-              $ref: '../components/schemas/models.yaml#/StringData'
+              $ref: '../components/schemas/models.yaml#/AuthTokens'
       400:
         description: 'Invalid request body'
       401:
@@ -26,7 +26,7 @@ register:
 
 login:
   post:
-    summary: 'Authorize user by login and password and get token'
+    summary: 'Authorize user by login and password and get token pair'
     operationId: login
     tags:
       - Auth
@@ -38,11 +38,11 @@ login:
             $ref: '../components/schemas/requests.yaml#/LoginRequest'
     responses:
       200:
-        description: 'User successfully authorized, token returned'
+        description: 'User successfully authorized, token pair returned'
         content:
           application/json:
             schema:
-              $ref: '../components/schemas/models.yaml#/StringData'
+              $ref: '../components/schemas/models.yaml#/AuthTokens'
       401:
         description: 'Invalid credentials'
 
@@ -87,6 +87,28 @@ change-password:
         description: 'Invalid request body or old password does not match'
       401:
         description: 'Unauthorized'
+
+refresh:
+  post:
+    summary: 'Refresh access token using refresh token'
+    operationId: refresh
+    tags:
+      - Auth
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/models.yaml#/StringData'
+    responses:
+      200:
+        description: 'New token pair returned'
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/models.yaml#/AuthTokens'
+      401:
+        description: 'Invalid refresh token'
 
 profile:
   get:

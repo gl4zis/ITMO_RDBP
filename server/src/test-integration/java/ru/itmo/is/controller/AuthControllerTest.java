@@ -48,7 +48,8 @@ class AuthControllerTest extends AbstractIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data").exists());
+                .andExpect(jsonPath("$.accessToken").exists())
+                .andExpect(jsonPath("$.refreshToken").exists());
     }
 
     @Test
@@ -87,7 +88,8 @@ class AuthControllerTest extends AbstractIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data").exists());
+                .andExpect(jsonPath("$.accessToken").exists())
+                .andExpect(jsonPath("$.refreshToken").exists());
 
         // Verify user was created
         assertTrue(userRepository.existsById("newuser"));
@@ -246,6 +248,60 @@ class AuthControllerTest extends AbstractIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testRefresh_WithValidRefreshToken_ShouldReturnNewTokens() throws Exception {
+        // Given
+        User user = testDataBuilder.user()
+                .withLogin("testuser")
+                .withRole(User.Role.RESIDENT)
+                .build();
+        userRepository.save(user);
+        flushAndClear();
+
+        // First login to get tokens
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setLogin("testuser");
+        loginRequest.setPassword("password123");
+
+        String responseJson = mockMvc.perform(post("/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        AuthTokens tokens = objectMapper.readValue(responseJson, AuthTokens.class);
+        String refreshToken = tokens.getRefreshToken();
+
+        // Create refresh request
+        StringData refreshRequest = new StringData();
+        refreshRequest.setData(refreshToken);
+
+        // When/Then
+        mockMvc.perform(post("/auth/refresh")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(refreshRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accessToken").exists())
+                .andExpect(jsonPath("$.refreshToken").exists())
+                .andExpect(jsonPath("$.accessToken").isNotEmpty())
+                .andExpect(jsonPath("$.refreshToken").isNotEmpty());
+    }
+
+    @Test
+    void testRefresh_WithInvalidRefreshToken_ShouldReturnUnauthorized() throws Exception {
+        // Given
+        StringData refreshRequest = new StringData();
+        refreshRequest.setData("invalid-refresh-token");
+
+        // When/Then
+        mockMvc.perform(post("/auth/refresh")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(refreshRequest)))
+                .andExpect(status().isUnauthorized());
     }
 }
 
