@@ -34,8 +34,8 @@ public class AuthInterceptor implements HandlerInterceptor {
         if (authHeader != null && authHeader.startsWith(AUTH_PREFIX)) {
             try {
                 String token = authHeader.split(" ")[1];
-                Optional<String> username = jwtManager.getLogin(token);
-                Optional<User.Role> role = jwtManager.getRole(token);
+                Optional<String> username = jwtManager.getLoginFromAccessToken(token);
+                Optional<User.Role> role = jwtManager.getRoleFromAccessToken(token);
 
                 securityContext.setContext(username, role);
             } catch (Exception e) {

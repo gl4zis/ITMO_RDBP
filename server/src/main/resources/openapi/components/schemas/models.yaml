@@ -6,6 +6,19 @@ StringData:
     data:
       type: string
 
+AuthTokens:
+  type: object
+  required:
+    - accessToken
+    - refreshToken
+  properties:
+    accessToken:
+      type: string
+      description: "JWT access token, expires in 10 minutes"
+    refreshToken:
+      type: string
+      description: "JWT refresh token, expires in 30 days"
+
 RoomType:
   type: string
   enum:

@@ -4,6 +4,8 @@ server:
 jwt:
   access:
     key: aa7sr4lm21fr5fq0y0qyhjv8221r8ro3ee1iwj6sj4i1qppjin
+  refresh:
+    key: bb8ts5mn32gs6gr1z1rzikw9332s9sp4ff2jxk7tk5j2rqqjko
 
 spring:
   datasource:
@@ -26,5 +28,3 @@ spring:
 file:
   storage:
     dir: /app/uploads
-#/Users/makeev/dorm-storage
-#/home/studs/s367370/dorm-storage

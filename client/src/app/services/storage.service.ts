@@ -5,18 +5,25 @@ import {Injectable} from '@angular/core';
 })
 export class StorageService {
 
-  private readonly TOKEN_KEY = 'jwt';
+  private readonly ACCESS_TOKEN_KEY = 'access_token';
+  private readonly REFRESH_TOKEN_KEY = 'refresh_token';
 
   resetAuth(): void {
-    sessionStorage.removeItem(this.TOKEN_KEY);
+    sessionStorage.removeItem(this.ACCESS_TOKEN_KEY);
+    sessionStorage.removeItem(this.REFRESH_TOKEN_KEY);
   }
 
-  saveToken(token: string): void {
-    sessionStorage.setItem(this.TOKEN_KEY, token);
+  saveTokens(accessToken: string, refreshToken: string): void {
+    sessionStorage.setItem(this.ACCESS_TOKEN_KEY, accessToken);
+    sessionStorage.setItem(this.REFRESH_TOKEN_KEY, refreshToken);
   }
 
-  getToken(): string | undefined {
-    return this.getItem(this.TOKEN_KEY);
+  getAccessToken(): string | undefined {
+    return this.getItem(this.ACCESS_TOKEN_KEY);
+  }
+
+  getRefreshToken(): string | undefined {
+    return this.getItem(this.REFRESH_TOKEN_KEY);
   }
 
   private getItem(name: string): string | undefined {

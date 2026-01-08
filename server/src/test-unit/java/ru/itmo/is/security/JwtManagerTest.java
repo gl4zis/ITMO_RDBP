@@ -12,15 +12,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class JwtManagerTest {
+    private static final String TEST_ACCESS_KEY = "test-access-key";
+    private static final String TEST_REFRESH_KEY = "test-refresh-key";
 
     private JwtManager jwtManager;
-
-    private static final String TEST_KEY = "aa7sr4lm21fr5fq0y0qyhjv8221r8ro3ee1iwj6sj4i1qppjin";
     private User testUser;
 
     @BeforeEach
     void setUp() {
-        jwtManager = new JwtManager(TEST_KEY);
+        jwtManager = new JwtManager(TEST_ACCESS_KEY, TEST_REFRESH_KEY);
 
         testUser = new User();
         testUser.setLogin("testuser");
@@ -29,7 +29,7 @@ class JwtManagerTest {
 
     @Test
     void testCreateToken_ShouldCreateValidToken() {
-        String token = jwtManager.createToken(testUser);
+        String token = jwtManager.createAccessToken(testUser);
 
         assertNotNull(token);
         assertFalse(token.isEmpty());
@@ -37,8 +37,8 @@ class JwtManagerTest {
 
     @Test
     void testCreateToken_ShouldContainCorrectSubject() {
-        String token = jwtManager.createToken(testUser);
-        Optional<String> login = jwtManager.getLogin(token);
+        String token = jwtManager.createAccessToken(testUser);
+        Optional<String> login = jwtManager.getLoginFromAccessToken(token);
 
         assertTrue(login.isPresent());
         assertEquals(testUser.getLogin(), login.get());
@@ -46,8 +46,8 @@ class JwtManagerTest {
 
     @Test
     void testCreateToken_ShouldContainCorrectRole() {
-        String token = jwtManager.createToken(testUser);
-        Optional<User.Role> role = jwtManager.getRole(token);
+        String token = jwtManager.createAccessToken(testUser);
+        Optional<User.Role> role = jwtManager.getRoleFromAccessToken(token);
 
         assertTrue(role.isPresent());
         assertEquals(testUser.getRole(), role.get());
@@ -55,8 +55,8 @@ class JwtManagerTest {
 
     @Test
     void testGetLogin_WithValidToken_ShouldReturnLogin() {
-        String token = jwtManager.createToken(testUser);
-        Optional<String> login = jwtManager.getLogin(token);
+        String token = jwtManager.createAccessToken(testUser);
+        Optional<String> login = jwtManager.getLoginFromAccessToken(token);
 
         assertTrue(login.isPresent());
         assertEquals("testuser", login.get());
@@ -65,7 +65,7 @@ class JwtManagerTest {
     @Test
     void testGetLogin_WithInvalidToken_ShouldReturnNull() {
         String invalidToken = "invalid.token.here";
-        Optional<String> login = jwtManager.getLogin(invalidToken);
+        Optional<String> login = jwtManager.getLoginFromAccessToken(invalidToken);
 
         assertTrue(login.isEmpty());
     }
@@ -73,8 +73,8 @@ class JwtManagerTest {
     @Test
     void testGetRole_WithValidToken_ShouldReturnRole() {
         testUser.setRole(User.Role.MANAGER);
-        String token = jwtManager.createToken(testUser);
-        Optional<User.Role> role = jwtManager.getRole(token);
+        String token = jwtManager.createAccessToken(testUser);
+        Optional<User.Role> role = jwtManager.getRoleFromAccessToken(token);
 
         assertTrue(role.isPresent());
         assertEquals(User.Role.MANAGER, role.get());
@@ -83,7 +83,7 @@ class JwtManagerTest {
     @Test
     void testGetRole_WithInvalidToken_ShouldReturnNull() {
         String invalidToken = "invalid.token.here";
-        Optional<User.Role> role = jwtManager.getRole(invalidToken);
+        Optional<User.Role> role = jwtManager.getRoleFromAccessToken(invalidToken);
 
         assertTrue(role.isEmpty());
     }
@@ -91,10 +91,10 @@ class JwtManagerTest {
     @Test
     void testCreateToken_WithDifferentRoles_ShouldCreateDifferentTokens() {
         testUser.setRole(User.Role.MANAGER);
-        String token1 = jwtManager.createToken(testUser);
+        String token1 = jwtManager.createAccessToken(testUser);
 
         testUser.setRole(User.Role.RESIDENT);
-        String token2 = jwtManager.createToken(testUser);
+        String token2 = jwtManager.createAccessToken(testUser);
 
         assertNotEquals(token1, token2);
     }

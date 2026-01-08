@@ -22,7 +22,7 @@ public class AuthService {
     private final UserMapper userMapper;
     private final UserService userService;
 
-    public StringData register(RegisterRequest req) {
+    public AuthTokens register(RegisterRequest req) {
         return switch (req.getRole()) {
             case MANAGER -> registerManager(userMapper.toUserModel(req));
             case NON_RESIDENT -> saveAndGetToken(userMapper.toUserModel(req));
@@ -30,12 +30,13 @@ public class AuthService {
         };
     }
 
-    public StringData login(LoginRequest req) {
+    public AuthTokens login(LoginRequest req) {
         Optional<User> userO = userRepository.findById(req.getLogin());
         if (userO.isEmpty() || !PasswordManager.matches(req.getPassword(), userO.get().getPassword())) {
             throw new UnauthorizedException("Invalid credentials");
         }
-        return new StringData(jwtManager.createToken(userO.get()));
+        User user = userO.get();
+        return new AuthTokens(jwtManager.createAccessToken(user), jwtManager.createRefreshToken(user));
     }
 
     public void registerOther(RegisterRequest req) {
@@ -55,19 +56,35 @@ public class AuthService {
         return userMapper.mapToProfile(userService.getCurrentUserOrThrow());
     }
 
-    private StringData registerManager(User user) {
+    private AuthTokens registerManager(User user) {
         if (isManagerExists()) {
             throw new UnauthorizedException("Invalid role");
         }
         return saveAndGetToken(user);
     }
 
-    private StringData saveAndGetToken(User user) {
+    private AuthTokens saveAndGetToken(User user) {
         if (userRepository.existsByLogin(user.getLogin())) {
             throw new ConflictException("User already exists");
         }
         userRepository.save(user);
-        return new StringData(jwtManager.createToken(user));
+        return new AuthTokens(jwtManager.createAccessToken(user), jwtManager.createRefreshToken(user));
+    }
+
+    public AuthTokens refresh(String refreshToken) {
+        Optional<String> login = jwtManager.getLoginFromRefreshToken(refreshToken);
+
+        if (login.isEmpty()) {
+            throw new UnauthorizedException("Invalid refresh token");
+        }
+
+        Optional<User> userO = userRepository.findById(login.get());
+        if (userO.isEmpty()) {
+            throw new UnauthorizedException("User not found");
+        }
+
+        User user = userO.get();
+        return new AuthTokens(jwtManager.createAccessToken(user), jwtManager.createRefreshToken(user));
     }
 
     private boolean isManagerExists() {

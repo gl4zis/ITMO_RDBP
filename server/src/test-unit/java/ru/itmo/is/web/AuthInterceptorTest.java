@@ -51,8 +51,8 @@ class AuthInterceptorTest {
     void testPreHandle_WithValidBearerToken_ShouldSetContext() throws Exception {
         // Given: Valid Bearer token
         when(request.getHeader("Authorization")).thenReturn("Bearer valid-token");
-        when(jwtManager.getLogin("valid-token")).thenReturn(Optional.of("user1"));
-        when(jwtManager.getRole("valid-token")).thenReturn(Optional.of(User.Role.RESIDENT));
+        when(jwtManager.getLoginFromAccessToken("valid-token")).thenReturn(Optional.of("user1"));
+        when(jwtManager.getRoleFromAccessToken("valid-token")).thenReturn(Optional.of(User.Role.RESIDENT));
         when(securityContext.getRole()).thenReturn(User.Role.RESIDENT);
         when(securityContext.isAnonymous()).thenReturn(false);
         
@@ -72,7 +72,7 @@ class AuthInterceptorTest {
     void testPreHandle_WithInvalidToken_ShouldSetAnonymous() throws Exception {
         // Given: Invalid token throws exception
         when(request.getHeader("Authorization")).thenReturn("Bearer invalid-token");
-        when(jwtManager.getLogin("invalid-token")).thenThrow(new RuntimeException("Invalid token"));
+        when(jwtManager.getLoginFromAccessToken("invalid-token")).thenThrow(new RuntimeException("Invalid token"));
         
         setupHandlerMethodWithAnonymousAnnotation();
 
@@ -114,7 +114,7 @@ class AuthInterceptorTest {
         // Then: Should set anonymous
         assertTrue(result);
         verify(securityContext).setAnonymous();
-        verify(jwtManager, never()).getLogin(anyString());
+        verify(jwtManager, never()).getLoginFromAccessToken(anyString());
     }
 
     @Test
@@ -136,8 +136,8 @@ class AuthInterceptorTest {
     void testPreHandle_WithRolesAllowed_WhenRoleMatches_ShouldAllowAccess() throws Exception {
         // Given: Authenticated user with matching role
         when(request.getHeader("Authorization")).thenReturn("Bearer token");
-        when(jwtManager.getLogin("token")).thenReturn(Optional.of("manager1"));
-        when(jwtManager.getRole("token")).thenReturn(Optional.of(User.Role.MANAGER));
+        when(jwtManager.getLoginFromAccessToken("token")).thenReturn(Optional.of("manager1"));
+        when(jwtManager.getRoleFromAccessToken("token")).thenReturn(Optional.of(User.Role.MANAGER));
         when(securityContext.getRole()).thenReturn(User.Role.MANAGER);
         when(securityContext.isAnonymous()).thenReturn(false);
         
@@ -156,8 +156,8 @@ class AuthInterceptorTest {
         // Given: Authenticated user with non-matching role
         // User is RESIDENT but endpoint requires MANAGER
         when(request.getHeader("Authorization")).thenReturn("Bearer token");
-        when(jwtManager.getLogin("token")).thenReturn(Optional.of("user1"));
-        when(jwtManager.getRole("token")).thenReturn(Optional.of(User.Role.RESIDENT));
+        when(jwtManager.getLoginFromAccessToken("token")).thenReturn(Optional.of("user1"));
+        when(jwtManager.getRoleFromAccessToken("token")).thenReturn(Optional.of(User.Role.RESIDENT));
         when(securityContext.getRole()).thenReturn(User.Role.RESIDENT);
         when(securityContext.isAnonymous()).thenReturn(false);
         
@@ -176,8 +176,8 @@ class AuthInterceptorTest {
     void testPreHandle_WithRolesAllowed_WhenRoleMatchesDifferentRole_ShouldAllowAccess() throws Exception {
         // Given: Authenticated user with GUARD role accessing endpoint that requires GUARD
         when(request.getHeader("Authorization")).thenReturn("Bearer token");
-        when(jwtManager.getLogin("token")).thenReturn(Optional.of("guard1"));
-        when(jwtManager.getRole("token")).thenReturn(Optional.of(User.Role.GUARD));
+        when(jwtManager.getLoginFromAccessToken("token")).thenReturn(Optional.of("guard1"));
+        when(jwtManager.getRoleFromAccessToken("token")).thenReturn(Optional.of(User.Role.GUARD));
         when(securityContext.getRole()).thenReturn(User.Role.GUARD);
         when(securityContext.isAnonymous()).thenReturn(false);
         
@@ -243,8 +243,8 @@ class AuthInterceptorTest {
     void testPreHandle_WithRolesAllowed_WhenMultipleRolesInAnnotation_ShouldCheckAll() throws Exception {
         // Given: User with MANAGER role accessing endpoint that requires MANAGER
         when(request.getHeader("Authorization")).thenReturn("Bearer token");
-        when(jwtManager.getLogin("token")).thenReturn(Optional.of("manager1"));
-        when(jwtManager.getRole("token")).thenReturn(Optional.of(User.Role.MANAGER));
+        when(jwtManager.getLoginFromAccessToken("token")).thenReturn(Optional.of("manager1"));
+        when(jwtManager.getRoleFromAccessToken("token")).thenReturn(Optional.of(User.Role.MANAGER));
         when(securityContext.getRole()).thenReturn(User.Role.MANAGER);
         when(securityContext.isAnonymous()).thenReturn(false);
         

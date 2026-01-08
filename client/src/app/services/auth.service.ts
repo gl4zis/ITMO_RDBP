@@ -8,7 +8,7 @@ import {jwtDecode} from 'jwt-decode';
 import {LoginReq} from '../models/auth/login.model';
 import {Role} from '../models/auth/role.model';
 import {RegisterReq} from '../models/auth/register.model';
-import {OneFieldModel} from '../models/one-field.model';
+import {AuthTokens} from '../models/auth/auth-tokens.model';
 import {Router} from '@angular/router';
 
 @Injectable({
@@ -24,11 +24,14 @@ export class AuthService {
         private router: Router
     ) {
         this.updateAuthState();
-        setInterval(() => this.updateAuthState(), 60000);
+        setInterval(() => {
+            this.refreshTokenIfNeeded();
+            this.updateAuthState();
+        }, 60000);
     }
 
     isAuthorized(): boolean {
-        const token = this.storage.getToken();
+        const token = this.storage.getAccessToken();
         if (Utils.isUndefined(token)) {
             return false;
         }
@@ -56,7 +59,7 @@ export class AuthService {
             return undefined;
         }
 
-        const payload: any = jwtDecode(this.storage.getToken()!);
+        const payload: any = jwtDecode(this.storage.getAccessToken()!);
         return payload.role;
     }
 
@@ -66,7 +69,7 @@ export class AuthService {
             return undefined;
         }
 
-        const payload: any = jwtDecode(this.storage.getToken()!);
+        const payload: any = jwtDecode(this.storage.getAccessToken()!);
         return payload.sub;
     }
 
@@ -75,10 +78,47 @@ export class AuthService {
         this.updateAuthState();
     }
 
+    private shouldRefreshToken(): boolean {
+        const token = this.storage.getAccessToken();
+        if (Utils.isUndefined(token)) {
+            return false;
+        }
+
+        try {
+            const payload: any = jwtDecode(token!);
+            const now = Math.floor(Date.now() / 1000);
+            const timeToExpiry = payload.exp - now;
+
+            // Refresh if token expires in less than 5 minutes
+            return timeToExpiry < 300;
+        } catch (error) {
+            console.error('Error checking token expiry:', error);
+            return false;
+        }
+    }
+
+    private refreshTokenIfNeeded(): void {
+        if (this.shouldRefreshToken()) {
+            const refreshToken = this.storage.getRefreshToken();
+            if (refreshToken) {
+                this.authRepo.refresh(refreshToken).subscribe({
+                    next: (tokens: AuthTokens) => {
+                        this.storage.saveTokens(tokens.accessToken, tokens.refreshToken);
+                        console.log('Tokens refreshed successfully');
+                    },
+                    error: (error) => {
+                        console.error('Failed to refresh token:', error);
+                        this.logout();
+                    }
+                });
+            }
+        }
+    }
+
     login(req: LoginReq): void {
         this.authRepo.login(req).subscribe({
-            next: (resp: OneFieldModel<string>) => {
-                this.storage.saveToken(resp.data);
+            next: (resp: AuthTokens) => {
+                this.storage.saveTokens(resp.accessToken, resp.refreshToken);
                 this.updateAuthState();
             },
             error: () => this.logout()
@@ -87,8 +127,8 @@ export class AuthService {
 
     register(req: RegisterReq): void {
         this.authRepo.register(req).subscribe({
-            next: (resp: OneFieldModel<string>) => {
-                this.storage.saveToken(resp.data)
+            next: (resp: AuthTokens) => {
+                this.storage.saveTokens(resp.accessToken, resp.refreshToken);
                 this.updateAuthState();
             },
             error: () => this.logout()
