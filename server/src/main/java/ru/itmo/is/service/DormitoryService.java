@@ -18,9 +18,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static ru.itmo.is.service.UniversityService.UNIVERSITY_NOT_FOUND;
+
 @Service
 @RequiredArgsConstructor
 public class DormitoryService {
+    private static final String DORMITORY_NOT_FOUND = "Dormitory not found";
+
     private final DormitoryRepository dormitoryRepository;
     private final UniversityRepository universityRepository;
     private final DormitoryMapper dormitoryMapper;
@@ -35,13 +39,13 @@ public class DormitoryService {
     public DormitoryResponse getDormitory(int id) {
         return dormitoryRepository.findById(id)
                 .map(dormitoryMapper::toResponse)
-                .orElseThrow(() -> new NotFoundException("Dormitory not found"));
+                .orElseThrow(() -> new NotFoundException(DORMITORY_NOT_FOUND));
     }
 
     public void addDormitory(DormitoryRequest req) {
         List<University> universities = universityRepository.getByIdIn(req.getUniversityIds());
         if (universities.size() != req.getUniversityIds().size()) {
-            throw new NotFoundException("University not found");
+            throw new NotFoundException(UNIVERSITY_NOT_FOUND);
         }
 
         Dormitory dormitory = new Dormitory();
@@ -53,11 +57,11 @@ public class DormitoryService {
 
     public void updateDormitory(int id, DormitoryRequest req) {
         Dormitory dormitory = dormitoryRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Dormitory not found"));
+                .orElseThrow(() -> new NotFoundException(DORMITORY_NOT_FOUND));
 
         List<University> universities = universityRepository.getByIdIn(req.getUniversityIds());
         if (universities.size() != req.getUniversityIds().size()) {
-            throw new NotFoundException("University not found");
+            throw new NotFoundException(UNIVERSITY_NOT_FOUND);
         }
 
         int residentNumber = dormitory.getRooms().stream()
@@ -82,7 +86,7 @@ public class DormitoryService {
 
     public void deleteDormitory(int id) {
         Dormitory dormitory = dormitoryRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Dormitory not found"));
+                .orElseThrow(() -> new NotFoundException(DORMITORY_NOT_FOUND));
         dormitoryRepository.delete(dormitory);
     }
 }

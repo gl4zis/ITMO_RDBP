@@ -4,6 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.itmo.is.entity.user.User;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class SecurityContextTest {
@@ -20,7 +22,7 @@ class SecurityContextTest {
         String username = "testuser";
         User.Role role = User.Role.RESIDENT;
 
-        securityContext.setContext(username, role);
+        securityContext.setContext(Optional.of(username), Optional.of(role));
 
         assertEquals(username, securityContext.getUsername());
         assertEquals(role, securityContext.getRole());
@@ -29,20 +31,20 @@ class SecurityContextTest {
     @Test
     void testSetContext_WithNullUsername_ShouldThrowException() {
         assertThrows(IllegalArgumentException.class, () -> {
-            securityContext.setContext(null, User.Role.RESIDENT);
+            securityContext.setContext(Optional.empty(), Optional.of(User.Role.RESIDENT));
         });
     }
 
     @Test
     void testSetContext_WithNullRole_ShouldThrowException() {
         assertThrows(IllegalArgumentException.class, () -> {
-            securityContext.setContext("testuser", null);
+            securityContext.setContext(Optional.of("testuser"), Optional.empty());
         });
     }
 
     @Test
     void testSetAnonymous_ShouldClearUsernameAndRole() {
-        securityContext.setContext("testuser", User.Role.RESIDENT);
+        securityContext.setContext(Optional.of("testuser"), Optional.of(User.Role.RESIDENT));
         securityContext.setAnonymous();
 
         assertNull(securityContext.getUsername());
@@ -51,7 +53,7 @@ class SecurityContextTest {
 
     @Test
     void testIsAnonymous_WhenContextIsSet_ShouldReturnFalse() {
-        securityContext.setContext("testuser", User.Role.RESIDENT);
+        securityContext.setContext(Optional.of("testuser"), Optional.of(User.Role.RESIDENT));
 
         assertFalse(securityContext.isAnonymous());
     }

@@ -6,6 +6,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.itmo.is.entity.user.User;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,50 +38,54 @@ class JwtManagerTest {
     @Test
     void testCreateToken_ShouldContainCorrectSubject() {
         String token = jwtManager.createToken(testUser);
-        String login = jwtManager.getLogin(token);
+        Optional<String> login = jwtManager.getLogin(token);
 
-        assertEquals(testUser.getLogin(), login);
+        assertTrue(login.isPresent());
+        assertEquals(testUser.getLogin(), login.get());
     }
 
     @Test
     void testCreateToken_ShouldContainCorrectRole() {
         String token = jwtManager.createToken(testUser);
-        User.Role role = jwtManager.getRole(token);
+        Optional<User.Role> role = jwtManager.getRole(token);
 
-        assertEquals(testUser.getRole(), role);
+        assertTrue(role.isPresent());
+        assertEquals(testUser.getRole(), role.get());
     }
 
     @Test
     void testGetLogin_WithValidToken_ShouldReturnLogin() {
         String token = jwtManager.createToken(testUser);
-        String login = jwtManager.getLogin(token);
+        Optional<String> login = jwtManager.getLogin(token);
 
-        assertEquals("testuser", login);
+        assertTrue(login.isPresent());
+        assertEquals("testuser", login.get());
     }
 
     @Test
     void testGetLogin_WithInvalidToken_ShouldReturnNull() {
         String invalidToken = "invalid.token.here";
-        String login = jwtManager.getLogin(invalidToken);
+        Optional<String> login = jwtManager.getLogin(invalidToken);
 
-        assertNull(login);
+        assertTrue(login.isEmpty());
     }
 
     @Test
     void testGetRole_WithValidToken_ShouldReturnRole() {
         testUser.setRole(User.Role.MANAGER);
         String token = jwtManager.createToken(testUser);
-        User.Role role = jwtManager.getRole(token);
+        Optional<User.Role> role = jwtManager.getRole(token);
 
-        assertEquals(User.Role.MANAGER, role);
+        assertTrue(role.isPresent());
+        assertEquals(User.Role.MANAGER, role.get());
     }
 
     @Test
     void testGetRole_WithInvalidToken_ShouldReturnNull() {
         String invalidToken = "invalid.token.here";
-        User.Role role = jwtManager.getRole(invalidToken);
+        Optional<User.Role> role = jwtManager.getRole(invalidToken);
 
-        assertNull(role);
+        assertTrue(role.isEmpty());
     }
 
     @Test

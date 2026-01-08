@@ -1,11 +1,12 @@
 package ru.itmo.is.security;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
 import ru.itmo.is.entity.user.User;
+
+import java.util.Optional;
 
 import static org.springframework.web.context.WebApplicationContext.SCOPE_REQUEST;
 
@@ -16,12 +17,12 @@ public class SecurityContext {
     private String username;
     private User.Role role;
 
-    public void setContext(@NotNull String username, @NotNull User.Role role) {
-        if (username == null || role == null) {
+    public void setContext(Optional<String> username, Optional<User.Role> role) {
+        if (username.isEmpty() || role.isEmpty()) {
             throw new IllegalArgumentException("Null credentials in SecurityContext");
         }
-        this.username = username;
-        this.role = role;
+        this.username = username.get();
+        this.role = role.get();
     }
 
     public void setAnonymous() {

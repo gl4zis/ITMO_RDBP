@@ -16,6 +16,7 @@ import ru.itmo.is.security.SecurityContext;
 import ru.itmo.is.utils.AnnotationUtils;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 @Log4j2
 @Component
@@ -33,8 +34,8 @@ public class AuthInterceptor implements HandlerInterceptor {
         if (authHeader != null && authHeader.startsWith(AUTH_PREFIX)) {
             try {
                 String token = authHeader.split(" ")[1];
-                String username = jwtManager.getLogin(token);
-                User.Role role = jwtManager.getRole(token);
+                Optional<String> username = jwtManager.getLogin(token);
+                Optional<User.Role> role = jwtManager.getRole(token);
 
                 securityContext.setContext(username, role);
             } catch (Exception e) {

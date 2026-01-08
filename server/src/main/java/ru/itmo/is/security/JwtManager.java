@@ -3,6 +3,8 @@ package ru.itmo.is.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ru.itmo.is.entity.user.User;
@@ -12,10 +14,12 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.Optional;
 
 @Component
 public class JwtManager {
     private static final String ROLE_CLAIM_KEY = "role";
+    private static final Logger log = LogManager.getLogger(JwtManager.class);
 
     private final SecretKey accessKey;
 
@@ -36,25 +40,28 @@ public class JwtManager {
                 .compact();
     }
 
-    public String getLogin(String jwt) {
-        Claims claims = getClaims(jwt);
-        return claims == null ? null : claims.getSubject();
+    public Optional<String> getLogin(String jwt) {
+        return getClaims(jwt)
+                .map(Claims::getSubject);
     }
 
-    public User.Role getRole(String jwt) {
-        Claims claims = getClaims(jwt);
-        return claims == null ? null : User.Role.valueOf(claims.get(ROLE_CLAIM_KEY, String.class));
+    public Optional<User.Role> getRole(String jwt) {
+        return getClaims(jwt)
+                .map(claims -> User.Role.valueOf(claims.get(ROLE_CLAIM_KEY, String.class)));
     }
 
-    private Claims getClaims(String jwt) {
+    private Optional<Claims> getClaims(String jwt) {
         try {
-            return Jwts.parser()
-                    .verifyWith(accessKey)
-                    .build()
-                    .parseSignedClaims(jwt)
-                    .getPayload();
+            return Optional.of(
+                    Jwts.parser()
+                            .verifyWith(accessKey)
+                            .build()
+                            .parseSignedClaims(jwt)
+                            .getPayload()
+            );
         } catch (Exception e) {
-            return null;
+            log.error("Cannot parse jwt", e);
+            return Optional.empty();
         }
     }
 }

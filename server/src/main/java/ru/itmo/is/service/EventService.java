@@ -3,6 +3,7 @@ package ru.itmo.is.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.itmo.is.entity.Event;
+import ru.itmo.is.exception.InvalidDataStateException;
 import ru.itmo.is.repository.EventRepository;
 import ru.itmo.is.repository.RoomRepository;
 
@@ -24,10 +25,10 @@ public class EventService {
         );
 
         if (events.isEmpty()) {
-            throw new RuntimeException("Resident has no payment or occupation events");
+            throw new InvalidDataStateException("Resident has no payment or occupation events");
         }
         
-        return events.get(0).getTimestamp();
+        return events.getFirst().getTimestamp();
     }
 
     public Integer calculateResidentDebt(String login) {

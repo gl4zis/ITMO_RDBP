@@ -28,6 +28,8 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class BidService {
+    private static final String NO_BID_MSG = "No such bid";
+
     private final UserService userService;
     private final NotificationService notificationService;
     private final UniversityRepository universityRepository;
@@ -91,7 +93,7 @@ public class BidService {
     public void denyBid(Long id, String comment) {
         Bid bid = bidRepository.findById(id)
                 .filter(b -> b.getStatus() == Bid.Status.IN_PROCESS)
-                .orElseThrow(() -> new NotFoundException("No such bid"));
+                .orElseThrow(() -> new NotFoundException(NO_BID_MSG));
         bid.setStatus(Bid.Status.DENIED);
         bid.setManager(userService.getCurrentUserOrThrow());
         bid.setComment(comment);
@@ -99,17 +101,17 @@ public class BidService {
         notificationService.notifySenderAboutBidStatus(bid);
     }
 
+    @Transactional
     public void acceptBid(Long id) {
         Bid bid = bidRepository.findById(id)
                 .filter(b -> b.getStatus() == Bid.Status.IN_PROCESS)
-                .orElseThrow(() -> new NotFoundException("No such bid"));
+                .orElseThrow(() -> new NotFoundException(NO_BID_MSG));
 
         bid.setStatus(Bid.Status.ACCEPTED);
         bid.setManager(userService.getCurrentUserOrThrow());
         switch (bid.getType()) {
             case OCCUPATION -> acceptOccupationBid((OccupationBid) bid);
-            case EVICTION -> acceptEvictionBid(bid);
-            case DEPARTURE -> acceptDepartureBid((DepartureBid) bid);
+            case EVICTION -> evictResident(bid.getSender().getLogin());
             case ROOM_CHANGE -> acceptRoomChangeBid((RoomChangeBid) bid);
         }
         bidRepository.save(bid);
@@ -120,7 +122,7 @@ public class BidService {
     public void pendBid(long id, String comment) {
         Bid bid = bidRepository.findById(id)
                 .filter(b -> b.getStatus() == Bid.Status.IN_PROCESS)
-                .orElseThrow(() -> new NotFoundException("No such bid"));
+                .orElseThrow(() -> new NotFoundException(NO_BID_MSG));
         bid.setComment(comment);
         bid.setManager(userService.getCurrentUserOrThrow());
         bid.setStatus(Bid.Status.PENDING_REVISION);
@@ -267,6 +269,7 @@ public class BidService {
         updateBidFiles(req.getAttachmentKeys(), bid);
     }
 
+    @Transactional
     public void evictResident(String login) {
         Resident nonResident = userService.getResidentByLogin(login);
         bidRepository.getBySenderLoginAndStatusIn(login, List.of(Bid.Status.IN_PROCESS, Bid.Status.PENDING_REVISION))
@@ -308,7 +311,7 @@ public class BidService {
     private void checkEditableBid(long id, Bid.Type type) {
         Optional<Bid> bidO = bidRepository.findById(id);
         if (bidO.isEmpty()) {
-            throw new NotFoundException("No such bid");
+            throw new NotFoundException(NO_BID_MSG);
         }
         if (!userService.getCurrentUserOrThrow().equals(bidO.get().getSender())) {
             throw new ForbiddenException("You are not allowed to edit this bid");
@@ -352,14 +355,6 @@ public class BidService {
         event.setRoom(roomO.get());
         event.setUsr(resident);
         eventRepository.save(event);
-    }
-
-    private void acceptEvictionBid(Bid bid) {
-        evictResident(bid.getSender().getLogin());
-    }
-
-    private void acceptDepartureBid(DepartureBid bid) {
-        // just save bid with ACCEPTED status
     }
 
     private void acceptRoomChangeBid(RoomChangeBid bid) {
